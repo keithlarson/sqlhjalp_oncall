@@ -1,0 +1,106 @@
+<div id="header_title_page"><h4>SQLHJALP.com Monitor Documentation </h4></div>
+
+<?php
+require("./sqlmot_pages_class.php");
+$pages= new pages();
+$docs_array=$pages->get_documentation_info();
+
+?>
+
+<div class="tab-pane" id="tabPage1">
+
+<?php
+$chp=0;
+$i=0;
+$last_chapter=0;
+
+foreach($docs_array as $d) {
+$documentation_id=$d['documentation_id'];
+if( $i > 0 ){
+	if( $d["chapter"] != $last_chapter  ) {
+		echo " </div> <!--  tab-pane- $i   -->";
+		echo "</div> <!-- tab-page chp".$last_chapter ."  --> ";
+	} 
+}
+
+if( $d["chapter"] != $last_chapter  ) {
+
+	echo "<div class='tab-page' id='chp".$d['chapter']."' >";
+	      echo "<h2 class='tab'>Chapter ".$d['chapter']." </h2>";
+		echo " <div class='tab-pane' id='tab-pane-$i'>  ";
+} 
+
+		   echo " <div class='tab-page' id='tab-page-$i' >   ";
+			echo "<h2 class='tab'>".$d['documentation_title']." </h2>";       
+			echo " <div id='$documentation_id'>  Chapter ".$d['chapter']." AJAX will populate when data available</div> ";
+		   echo " </div> <!-- tab-page-$i -->   ";
+?>
+<script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=documentation&id=<?php echo $documentation_id ?>",
+      dataType: 'json',
+      success: function(data)      {
+         var html = '<div id=tablecontainer>', ajax_results; 
+ 
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+          html += "<div id=tablerow><div id=tableleft><div class=column-in>Chapter:"+ajax_results.chapter+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_title+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last Update:"+ajax_results.date_recorded+" </div></div><div id=tableright><div class=column-in>Page Number: "+ajax_results.page_number+"</div></div></div><div id=tablerow><div id=tableleft><div class=column-in></div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_txt+" </div></div><div id=tableright><div class=column-in></div></div></div>" 
+
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#<?php echo $documentation_id?>').html(html);
+      }
+    });
+  });
+  </script>
+<?php
+
+
+$i++;
+$last_chapter=$d["chapter"];
+}
+
+echo " </div> <!--  tab-pane-   -->";
+echo "</div> <!-- tab-page chp".$last_chapter ."  --> ";
+
+?>
+
+
+
+</div> <!-- tabPage1  -->
+
+
+</div> <!--class="tab-pane" -->
+<!-- tab pane closed -->
+
+
+
+<script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=documentation&id=1",
+      dataType: 'json',
+      success: function(data)      {
+         var html = '<div id=tablecontainer>', ajax_results; 
+ 
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>Chapter:"+ajax_results.chapter+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_title+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last Update:"+ajax_results.date_recorded+" </div></div><div id=tableright><div class=column-in>Page Number: "+ajax_results.page_number+"</div></div></div><div id=tablerow><div id=tableleft><div class=column-in></div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_txt+" </div></div><div id=tableright><div class=column-in></div></div></div>" 
+
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#Overview').html(html);
+      }
+    });
+  });
+  </script>
+
+
+
+<script type="text/javascript">
+setupAllTabs();
+</script>

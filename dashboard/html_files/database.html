@@ -5,7 +5,7 @@ require("./sqlmot_pages_class.php");
 $pages= new pages();
 
 ?>
-<div id="header_title_page"><h4>SQLHJALP.com Monitor (SQLMOT) DATABASE DETAILS</h4></div>
+<div id="header_title_page"><h4>SQLHJALP.com Monitor DATABASE DETAILS</h4></div>
 
 <div class="tab-pane" id="tab-pane-1">
 
@@ -100,13 +100,33 @@ $topvariables=array('Threads_connected','Created_tmp_disk_tables','Created_tmp_t
 
    <div class="tab-page" id="tab-pane-3">
       <h2 class="tab">Mark Leith's pshelper</h2>
-	<div id="ps_tgctl"> Top Global Consumers by Total Latency AJAX </div>
-	<div id="ps_tgcal"> Top Global Consumers by Average Latency AJAX</div>
-	<div id="ps_95per"> Statements with runtimes in 95th_percentile AJAX </div>
-	<div id="ps_sfts"> Statements with Full Table Scans AJAX </div>
-	<div id="ps_tgtl"> Top IO by thread AJAX </div>
-	
+	<div class="tab-pane" id="tab-pane-2">
+	<div class="tab-page" id="tab-pane-3a">
+      		<h2 class="tab">Top Global Consumers by Total Latency </h2>
+	<div id="ps_tgctl"> AJAX will populate when data available</div>
+	</div>
+	<div class="tab-page" id="tab-pane-3b">
+                <h2 class="tab">Top Global Consumers by Average Latency</h2>
+	<div id="ps_tgcal"> AJAX will populate when data available</div> 
+	</div>
+	<div class="tab-page" id="tab-pane-3c">
+                <h2 class="tab">Statements with runtimes in 95th% </h2>
+	<div id="ps_95per"> AJAX will populate when data available</div> 
+	</div>
+	<div class="tab-page" id="tab-pane-3d">
+                <h2 class="tab">Statements with Full Table Scans </h2>
+	<div id="ps_sfts"> AJAX will populate when data available</div>
+	</div>
+	<div class="tab-page" id="tab-pane-3e">
+                <h2 class="tab">Top IO by Thread</h2>
+	<div id="ps_tgtl"> AJAX will populate when data available</div> 
+	</div>
+	<div class="tab-page" id="tab-pane-3f">
+      		<h2 class="tab">Documentation</h2>
+                <div id="psdocumentation_ajax"> AJAX will populate here</div>
+	</div>
 
+	</div> <!-- "tab-pane" id="tab-pane-2   -->
    </div>
 
 
@@ -231,7 +251,7 @@ $topvariables=array('Threads_connected','Created_tmp_disk_tables','Created_tmp_t
   $(function ()  {
     $.ajax({
       url: './index.php',      
-      data: "page=API&jquery=documentation&id=32",
+      data: "page=API&jquery=documentation&id=35",
       dataType: 'json',
       success: function(data)      {
          var html = '<div id=tablecontainer>', ajax_results; 
@@ -248,6 +268,31 @@ $topvariables=array('Threads_connected','Created_tmp_disk_tables','Created_tmp_t
     });
   });
   </script>
+
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',
+      data: "page=API&jquery=documentation&id=34",
+      dataType: 'json',
+      success: function(data)      {
+         var html = '<div id=tablecontainer>', ajax_results;
+
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>Chapter:"+ajax_results.chapter+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_title+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last Update:"+ajax_results.date_recorded+" </div></div><div id=tableright><div class=column-in>Page Number: "+ajax_results.page_number+"</div></div></div><div id=tablerow><div id=tableleft><div class=column-in></div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_txt+" </div></div><div id=tableright><div class=column-in></div></div></div>"
+
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#psdocumentation_ajax').html(html);
+      }
+    });
+  });
+  </script>
+
+
 
 
 <script type="text/javascript">

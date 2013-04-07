@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.6.10, for Linux (i686)
 --
--- Host: localhost    Database: sqlhjalp_monitor 
+-- Host: localhost    Database: sqlhjalp_monitor
 -- ------------------------------------------------------
 -- Server version	5.6.10-log
 
@@ -33,7 +33,7 @@ CREATE TABLE `contact` (
   PRIMARY KEY (`contact_id`),
   UNIQUE KEY `mp` (`mobile_phone`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,19 +48,37 @@ CREATE TABLE `cron` (
   `cron_name` varchar(255) DEFAULT NULL,
   `cron_type` enum('OFF','HTTP','HTTPS','SSH','MySQL','WGET','FTP','SHELL') DEFAULT NULL,
   `domain` varchar(255) DEFAULT NULL,
-  `ip_address` int(10) unsigned NOT NULL,
+  `ip_address` int(10) unsigned DEFAULT NULL,
   `domain_ip` enum('domain','ip') NOT NULL DEFAULT 'ip',
   `command` varchar(255) DEFAULT NULL,
   `validate` varchar(255) DEFAULT NULL,
-  `threshold` int(10) unsigned NOT NULL,
+  `threshold` int(10) unsigned DEFAULT '0',
   `threshold_ratio` enum('5 MINUTE','15 MINUTE','30 MINUTE','45 MINUTE','1 HOUR','2 HOUR','4 HOUR','1 DAY','1 MONTH','1 YEAR') DEFAULT NULL,
   `time_recorded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `runtime` varchar(10) DEFAULT NULL,
   `username` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`cron_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`keith`@`localhost`*/ /*!50003 TRIGGER crons AFTER INSERT ON cron
+FOR EACH ROW BEGIN 
+INSERT INTO cron_times SET  cron_id = NEW.cron_id; 
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `cron_failed_response`
@@ -76,7 +94,7 @@ CREATE TABLE `cron_failed_response` (
   `date_recorded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `acknowledge` tinyint(2) DEFAULT '0',
   PRIMARY KEY (`cron_failed_response_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,7 +110,7 @@ CREATE TABLE `cron_history` (
   `status_id` int(11) NOT NULL,
   `date_recorded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`cron_history_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -112,7 +130,7 @@ CREATE TABLE `cron_times` (
   `min` varchar(2) DEFAULT NULL,
   `time_recorded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`cron_times_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,7 +147,25 @@ CREATE TABLE `dashboard` (
   `date_recorded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`dashboard_id`),
   UNIQUE KEY `Cid` (`cron_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `documentation`
+--
+
+DROP TABLE IF EXISTS `documentation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `documentation` (
+  `documentation_id` int(11) NOT NULL AUTO_INCREMENT,
+  `page_number` decimal(3,2) NOT NULL DEFAULT '0.00',
+  `chapter` int(11) NOT NULL DEFAULT '0',
+  `documentation_title` varchar(255) DEFAULT NULL,
+  `documentation_txt` text,
+  `date_recorded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`documentation_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -147,9 +183,8 @@ CREATE TABLE `events` (
   `end_date` date DEFAULT NULL,
   `primary_contact` tinyint(2) DEFAULT NULL,
   PRIMARY KEY (`events_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
 
 --
 -- Table structure for table `innodb_buffer_pool_size`
@@ -163,7 +198,7 @@ CREATE TABLE `innodb_buffer_pool_size` (
   `size` varchar(2) DEFAULT NULL,
   `time_recorded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=208 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -180,7 +215,7 @@ CREATE TABLE `innodb_log_file_size` (
   `GB_WL_HR` varchar(5) DEFAULT NULL,
   `time_recorded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=207 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=225 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -197,8 +232,6 @@ CREATE TABLE `status` (
   PRIMARY KEY (`status_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
-
 
 --
 -- Dumping events for database 'sqlhjalp_monitor'
@@ -676,30 +709,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `p_test` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`keith`@`localhost` PROCEDURE `p_test`()
-BEGIN
-SET @RANGE_NUM_A=0 ;
-SET @RANGE_NUM_B=0 ;
-SELECT '*' , '*'
-UNION 
-SELECT @RANGE_NUM_A :=  @RANGE_NUM_A +1, @RANGE_NUM_B :=  @RANGE_NUM_B +1 ; 
-
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -710,4 +719,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-04-03 12:52:25
+-- Dump completed on 2013-04-06 16:10:43
