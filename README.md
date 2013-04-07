@@ -1,0 +1,4 @@
+sqlhjalp_oncall
+===============
+
+This is a LAMP stack monitoring application. Alterations for web servers other than APACHE on LINUX are up to you.  This application is designed for an Intranet. If you would like to place this on the public web I would recommend HTTP Password protection.  The application does the following:         --Schedules on call rotations for users.         --Notifications via email         --Notifications via a phone call                 --So you do not sleep through another txt message overnight         --Notifications via a txt message         --Allows dynamic cron creation for dynamic monitoring options.         --Monitor MySQL connections         --Monitor MySQL performance         --Monitor HTTP results         --Monitor HTTP results         --Monitor results via SSH command         --Monitor results via MySQL query         --Monitor results from shell command
