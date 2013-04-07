@@ -1,0 +1,111 @@
+<div id="header_title_page"><h4>SQLHJALP.com Monitor (SQLMOT) CONTACTS </h4></div>
+
+<div class="tab-pane" id="tab-pane-1">
+
+   <div class="tab-page">
+      <h2 class="tab">General</h2>
+
+
+<div id="page_list">
+<div id=tablecontainer>
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>Contact ID</h4> </div></div>
+                <div id=tablemiddle><div class=column-in><h4>Email</h4></div></div>
+                <div id=tableright><div class=column-in><h4>Last Update</h4></div></div>
+        </div>
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4></h4> </div></div>
+                <div id=tablemiddle><div class=column-in> No Data Available  </div></div>
+                <div id=tableright ><div class=column-in></div></div>
+        </div>
+</div> <!-- tablecontainer  -->
+</div> <!-- "page_list"  --><div class=cleaner>&nbsp;</div>
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()
+  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=contacts",
+      dataType: 'json',
+      success: function(data)
+      {
+         var html = '<div id=tablecontainer><div id=tablerow><div id=tableleft><div class=column-in> <h4>ID</h4> </div></div><div id=tablemiddle><div class=column-in><h4>Email</h4></div></div><div id=tablemiddle><div class=column-in><h4>Name</h4></div></div><div id=tablemiddle><div class=column-in><h4>Last Updated</h4></div></div></div>', ajax_results; 
+ 
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in><a href='./?page=contacts_details&id="+ajax_results.contact_id+"'>"+ajax_results.contact_id+"</a></div></div><div id=tablemiddle><div class=column-in>"+ajax_results.email+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.first_name+" "+ajax_results.last_name+"</div></div><div id=tableright><div class=column-in>"+ajax_results.date_recorded+" </div></div></div>" 
+
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#page_list').html(html);
+      }
+    });
+  });
+  </script>
+
+
+   </div> <!-- tab-pane-1  -->
+
+<div class="tab-page" id="tabPage2">
+      <h2 class="tab"> Add New Contact</h2>
+
+<?php
+        if(isset($_SESSION['lastnewcontactid'])){
+                echo "Thank you, We have created a new contact ID [".$_SESSION['lastnewcontactid']."]";
+                unset($_SESSION['lastnewcontactid']);
+        }
+?>
+<form id=sqlhjalp_form method="post" >
+<input type=hidden name=posted form=sqlhjalp_form  value="newcontact">
+</form>
+<div id="information_list">
+<div id=tablecontainer>
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> </div></div>
+                <div id=tablemiddle><div class=column-in> <h4>New Contact Email</h4>  <input type="email" form=sqlhjalp_form name=newcontactemail placeholder="Enter a valid email address"  required>  </div></div>
+                <div id=tableright><div class=column-in> <button form=sqlhjalp_form name=action value=save>✓</button>  </div></div>
+        </div></div> <!-- tablecontainer  -->
+</div><!-- information_list  -->
+
+
+   </div ><!-- tabPage2  -->
+
+   <div class="tab-page"  id="tab-pane-3">
+      <h2 class="tab">Documentation</h2>
+		<div id="documentation_ajax"> AJAX will populate here</div>
+   </div>
+
+
+</div> <!--class="tab-pane" -->
+<!-- tab pane closed -->
+
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=documentation&id=20",
+      dataType: 'json',
+      success: function(data)      {
+         var html = '<div id=tablecontainer>', ajax_results; 
+ 
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>Chapter:"+ajax_results.chapter+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_title+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last Update:"+ajax_results.date_recorded+" </div></div><div id=tableright><div class=column-in>Page Number: "+ajax_results.page_number+"</div></div></div><div id=tablerow><div id=tableleft><div class=column-in></div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_txt+" </div></div><div id=tableright><div class=column-in></div></div></div>" 
+
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#documentation_ajax').html(html);
+      }
+    });
+  });
+  </script>
+
+
+<script type="text/javascript">
+setupAllTabs();
+</script>
+

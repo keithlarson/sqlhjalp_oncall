@@ -1,0 +1,151 @@
+<?php
+
+require("./sqlmot_pages_class.php");
+
+$pages= new pages();
+$events_ar=$pages->get_events();
+
+$cal_ar=array();
+foreach($events_ar as $a ){
+$s_month= ($a[s_month] *1) -1;
+$e_month= ($a[e_month] *1) -1;
+$cal_ar[]="{
+            				id: ".$a[events_id].",
+            				title: '".$a[title]."',
+            				start: new Date(".$a[s_year].", ".$s_month.", ".$a[s_day]."),
+            				end: new Date(".$a[e_year].", ".$e_month.", ".$a[e_day]."), 
+            				allDay: false 
+            			} ";
+}
+$cal_js = implode(",", $cal_ar);
+
+?>
+
+<div id="header_title_page"><h4>SQLHJALP.com Monitor (SQLMOT) SCHEDULE </h4></div>
+
+<div class="tab-pane" id="tab-pane-1">
+
+   <div class="tab-page">
+      <h2 class="tab">General</h2>
+
+
+<script>
+
+        $(document).ready(function() {
+        
+                var date = new Date();
+                var d = date.getDate();
+                var m = date.getMonth();
+                var y = date.getFullYear();
+                
+                $('#calendar').fullCalendar({
+                        theme: true,
+                        header: {
+                                left: 'prev,next today',
+                                center: 'title',
+                                right: 'month,agendaWeek,agendaDay'
+                        },
+                        editable: true,
+                        events: [
+				<?php echo $cal_js; ?>                            
+                        ]
+                });
+                
+        });
+
+</script>
+
+
+
+	<div id='calendar'></div>
+
+   </div> <!-- tab-pane-1  -->
+
+   <div class="tab-page" id="tab-pane-2">
+      <h2 class="tab">Add event</h2>
+
+<?php
+        if(isset($_SESSION['lastneweventid'])){
+                echo "Thank you, We have this event has been added ";  
+                unset($_SESSION['lastneweventid']);
+        }
+?>
+<form id=sqlhjalp_form method="post" >
+<input type=hidden name=posted form=sqlhjalp_form  value="newevent">
+</form>
+<div id="information_list">
+<div id=tablecontainer>
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4> Contact </h4> 
+
+              <?php 
+
+		$record=array();
+		$record['table']="contact";
+		$record['field']="CONCAT(first_name,' ' ,last_name ) ";
+		$record['name']="newuser";
+		$record['default']="";
+		$record['required']=1;
+		$record['form_name']="sqlhjalp_form";
+		
+		echo $pages->draw_single_select($record); 
+
+		?> 
+
+		 </div></div>
+                <div id=tablemiddle><div class=column-in> <h4>Start Date</h4>  <input type="text" form=sqlhjalp_form name=start_date required >
+		<A HREF="#" onClick="cal.select(document.forms['sqlhjalp_form'].start_date,'anchor1','MM/dd/yyyy'); return false;" NAME="anchor1" ID="anchor1">select start date</A>
+		</div></div>
+		<div id=tablemiddle><div class=column-in> <h4>End Date</h4>  <input type="text" form=sqlhjalp_form name=end_date required >
+                <A HREF="#" onClick="cal.select(document.forms['sqlhjalp_form'].end_date,'anchor1','MM/dd/yyyy'); return false;" NAME="anchor1" ID="anchor1">select end date</A>
+                </div></div>	
+		<div id=tablemiddle><div class=column-in> <h4>Primary Contact</h4>  <input type="checkbox" form=sqlhjalp_form name=primary >  </div></div>
+                <div id=tableright><div class=column-in> <button form=sqlhjalp_form name=action value=save>✓</button>  </div></div>
+        </div></div> <!-- tablecontainer  -->
+</div><!-- information_list  -->
+
+
+
+
+   </div>  <!-- tab-pane-2  -->
+
+   <div class="tab-page" id="tab-pane-3">
+      <h2 class="tab">Documentation</h2>
+
+		<div id="documentation_ajax"> AJAX will populate here</div>
+
+
+   </div>  <!-- tab-pane-3  -->
+
+
+</div>  <!-- tab-pane  -->
+<!-- tab pane closed -->
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=documentation&id=27",
+      dataType: 'json',
+      success: function(data)      {
+         var html = '<div id=tablecontainer>', ajax_results; 
+ 
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>Chapter:"+ajax_results.chapter+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_title+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last Update:"+ajax_results.date_recorded+" </div></div><div id=tableright><div class=column-in>Page Number: "+ajax_results.page_number+"</div></div></div><div id=tablerow><div id=tableleft><div class=column-in></div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_txt+" </div></div><div id=tableright><div class=column-in></div></div></div>" 
+
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#documentation_ajax').html(html);
+      }
+    });
+  });
+  </script>
+
+<script type="text/javascript">
+setupAllTabs();
+</script>
+
+
+

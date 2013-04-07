@@ -1,0 +1,244 @@
+<?php
+require("./sqlmot_pages_class.php");
+
+$pages= new pages();
+$pages->page=$_GET[page];
+$info=$pages->sql_cron_details($_GET['cron_id']);
+?>
+
+<div id="header_title_page"><h4>SQLHJALP.com Monitor (SQLMOT) CRON/DASHBOARD DETAILS</h4></div>
+
+<div class="tab-pane" id="tab-pane-1">
+
+   <div class="tab-page">
+      <h2 class="tab">General</h2>
+
+<div id="information_list">
+
+<div id=tablecontainer>
+
+	<div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>Cron ID</h4> <?php echo $info[cron_id] ?> </div></div>
+		<div id=tablemiddle><div class=column-in> </div></div>
+                <div id=tablemiddle><div class=column-in> </div></div>
+		<div id=tablemiddle><div class=column-in> </div></div>
+                <div id=tablemiddle><div class=column-in> </div></div>
+                <div id=tableright><div class=column-in>  </div></div>
+        </div>
+
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>Name</h4>
+		<?php 
+		$record=array();
+		$record[id]=$info[cron_id];	
+		echo $pages->name_display($info[cron_name],$record,"cron","cron_name", "list");
+		?></div></div>
+
+                <div id=tablemiddle><div class=column-in><h4>Type</h4>
+		<?php 
+                $record=array();
+                $record['id']=$info[cron_id];
+                $record['display']=$info[cron_type];
+                $record['defaultvalue']="OFF";
+                $record['updatetable']="cron";
+                $record['updatefield']="cron_type";
+                $record['mode']="list";
+                $record['jquery']="cron_type";
+                echo $pages->select_display($record);
+
+		?></div></div>
+
+		<div id=tablemiddle><div class=column-in><h4>Domain</h4> 
+		<?php $record=array();  $record[id]=$info[cron_id];
+		echo $pages->name_display($info[domain],$record,"cron","domain", "list");
+		?></div></div>
+
+		<div id=tablemiddle><div class=column-in><h4>Ip Address</h4> 
+		<?php $record=array();  $record[id]=$info[cron_id];
+		echo $pages->name_display($info[ip_address],$record,"cron","ip_address", "list");
+		?></div></div>
+		<div id=tablemiddle><div class=column-in> <h4> Domain or IP</h4>
+                <?php 
+
+                $record=array();
+                $record['id']=$info[cron_id];
+                $record['display']=$info[domain_ip];
+                $record['defaultvalue']="";
+                $record['updatetable']="cron";
+                $record['updatefield']="domain_ip";
+                $record['mode']="list";
+                $record['jquery']="domain_ip";
+                echo $pages->select_display($record);
+
+                ?>
+                </div></div>
+
+                <div id=tableright><div class=column-in>  </div></div>
+        </div>
+
+	<div id=tablerow>
+
+                <div id=tableleft><div class=column-in><h4>Validate</h4>
+		<?php $record=array();  $record[id]=$info[cron_id];
+		echo $pages->name_display($info[validate],$record,"cron","validate", "list");
+		?></div></div>
+
+		<div id=tablemiddle><div class=column-in><h4>Threshold</h4>
+		<?php $record=array();  $record[id]=$info[cron_id]; 
+		echo $pages->name_display($info[threshold],$record,"cron","threshold", "list");
+		?></div></div>
+
+		<div id=tablemiddle><div class=column-in><h4>Threshold Ratio </h4>
+		<?php 
+
+		$record=array();
+                $record['id']=$info[cron_id];
+                $record['display']=$info[threshold_ratio];
+                $record['defaultvalue']="";
+                $record['updatetable']="cron";
+                $record['updatefield']="threshold_ratio";
+                $record['mode']="list";
+                $record['jquery']="threshold_ratio";
+                echo $pages->select_display($record);
+
+		?></div></div>
+		<div id=tablemiddle><div class=column-in> <h4>UserName</h4> 
+		<?php $record=array();  $record[id]=$info[cron_id];
+                 echo $pages->name_display($info[username],$record,"cron","username", "list");
+                ?>
+		</div></div>
+		<div id=tablemiddle><div class=column-in> <h4>Password</h4>  
+		<?php $record=array();  $record[id]=$info[cron_id];
+                  echo $pages->name_display($info[password],$record,"cron","password", "list");
+                ?>
+		</div></div>
+                <div id=tableright><div class=column-in>  </div></div>
+        </div>
+
+	<div id=tablerow>
+		<div id=tableleft><div class=column-in><h4>Command||Execute||SQL</h4>  </div></div>
+                <div id=tablemiddle><div class=column-in> 
+		<?php $record=array();  $record['id']=$info[cron_id]; $record['type']="textbox";
+                echo $pages->name_display($info[command],$record,"cron","command", "list");
+                ?>
+		</div></div>
+		<div id=tablemiddle><div class=column-in> </div></div>
+		<div id=tablemiddle><div class=column-in> </div></div>
+		<div id=tablemiddle><div class=column-in></div></div>
+                <div id=tableright><div class=column-in> </div></div>
+	 </div>
+	 <div id=tablerow>
+
+		<div id=tableleft><div class=column-in> <h4> Cron Times </h4>  </div></div>
+		<div id=tablemiddle><div class=column-in> 
+                <?php 
+                /* Cron times Minute*/
+                $record=array();
+                $record['title']="Minute";
+                $record['id']=$info['cron_id'];
+                $record['display']=$info['min'];
+                $record['defaultvalue']="*";
+                $record['updatetable']="cron_times";
+                $record['updatefield']="min";
+                $record['mode']="list";
+                $record['jquery']="min";
+                echo $pages->select_display($record);
+                ?>
+           
+		</div></div>
+		<div id=tablemiddle><div class=column-in>
+                <?php 
+		/* Cron times HOUR*/
+                $record=array();
+                $record['title']="Hour";
+                $record['id']=$info['cron_id'];
+                $record['display']=$info['hour'];
+                $record['defaultvalue']="*";
+                $record['updatetable']="cron_times";
+                $record['updatefield']="hour";
+                $record['mode']="list";
+                $record['jquery']="hour";
+                echo $pages->select_display($record);
+              
+               
+                ?>
+                </div></div>
+		<div id=tablemiddle><div class=column-in>
+                <?php 
+                /* Cron times MOnth */
+                $record=array();
+                $record['title']="Month";
+                $record['id']=$info['cron_id'];
+                $record['display']=$info['month'];
+                $record['defaultvalue']="*";
+                $record['updatetable']="cron_times";
+                $record['updatefield']="month";
+                $record['mode']="list";
+                $record['jquery']="month";
+                echo $pages->select_display($record);
+                
+               
+                ?>
+                </div></div>
+		<div id=tablemiddle><div class=column-in>
+                <?php 
+                /* Cron times day of month */
+                $record=array();
+                $record['title']="Days of the Month";
+                $record['id']=$info['cron_id'];
+                $record['display']=$info['day_of_month'];
+                $record['defaultvalue']="*";
+                $record['updatetable']="cron_times";
+                $record['updatefield']="day_of_month";
+                $record['mode']="list";
+                $record['jquery']="day_of_month";
+                echo $pages->select_display($record);
+             	 
+                ?>
+                </div></div>
+		<div id=tableright><div class=column-in>
+                <?php 
+		/* Cron times day of week  */
+                $record=array();
+                $record['title']="Days of<br>the Week";
+                $record['id']=$info['cron_id'];
+                $record['display']=$info['day_of_week'];
+                $record['defaultvalue']="*";
+                $record['updatetable']="cron_times";
+                $record['updatefield']="day_of_week";
+                $record['mode']="list";
+                $record['jquery']="day_of_week";
+                echo $pages->select_display($record);
+                ?>
+                </div></div>
+
+        </div>
+
+
+
+</div> <!-- tablecontainer  -->
+</div><!-- information_list  -->
+<div class=cleaner>&nbsp;</div>
+
+
+ </div>
+
+
+   <div class="tab-page"  id="tab-pane-2">
+      <h2 class="tab">Command||Execute||SQL Extras</h2>
+		<?php  echo $pages->format_documentation(15); ?>
+   </div>
+
+   <div class="tab-page"  id="tab-pane-3">
+      <h2 class="tab">Documentation</h2>
+		<?php  echo $pages->format_documentation(16); ?>
+   </div>
+
+  
+
+</div>
+<!-- tab pane closed -->
+<script type="text/javascript">
+setupAllTabs();
+</script>
+

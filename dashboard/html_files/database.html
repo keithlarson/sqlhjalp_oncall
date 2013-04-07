@@ -1,0 +1,256 @@
+<?php
+
+require("./sqlmot_pages_class.php");
+
+$pages= new pages();
+
+?>
+<div id="header_title_page"><h4>SQLHJALP.com Monitor (SQLMOT) DATABASE DETAILS</h4></div>
+
+<div class="tab-pane" id="tab-pane-1">
+
+   <div class="tab-page">
+      <h2 class="tab">General</h2>
+<h4>MySQL  Variables: </h4>
+<div id="information_list">
+
+<?php 
+$events=$pages->sql_event_scheduler_check();
+if($events[1]=='OFF'){ 
+
+echo "It appears that the Event Scheduler is OFF. ";
+echo $pages->format_documentation(77); 
+
+} else { 
+$status=$pages->sql_mysql_status();
+
+?>
+
+<div id=tablecontainer>
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4> Variable name </h4>   </div></div>
+                <div id=tableright><div class=column-in>   <h4> Value </h4> </div></div>
+        </div>
+
+
+
+	<div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>Event Scheduler </h4>   </div></div>
+                <div id=tableright><div class=column-in>  ON  </div></div>
+        </div>
+	
+<?php 
+$topvariables=array('Threads_connected','Created_tmp_disk_tables','Created_tmp_table','Created_tmp_file','Handler_read_first','Innodb_buffer_pool_wait_free','Key_reads','Max_used_connections','Open_tables','Select_full_join','Slow_queries','Uptime','Max_used_connections','wait_timeout','Key_buffer_size','Table_cache','Table_open_cache_hits','Handler_read_rnd','Innodb_row_lock_time_avg','Innodb_available_undo_logs','Innodb_buffer_pool_read_requests','Handler_read_rnd','Handler_read_rnd_next');
+
+
+
+	foreach($status as $l){
+
+	if (in_array($l['Variable_name'] , $topvariables)) {	
+	echo "
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>".$l['Variable_name']."</h4>   </div></div>
+                <div id=tableright><div class=column-in> ".$l['Value']." </div></div>
+        </div>
+	";
+	}
+
+	}	
+
+?>
+
+
+</div> <!-- tablecontainer  -->
+
+<?php 
+}
+?>
+
+</div><!-- information_list  -->
+<div class=cleaner>&nbsp;</div>
+
+
+ </div>
+
+   <div class="tab-page" id="tab-pane-2" >
+      <h2 class="tab">Graphs</h2>
+<div id=tablecontainer>
+
+	<div id=tablerow>
+                <div id=tableleft><div class=column-in> </div></div> 
+		<div id=tablemiddle><div class=column-in> <h4>Innodb Log File Size </h4> MB Work Load By Hour  </div></div>
+                <div id=tablemiddle><div class=column-in> <h4>Innodb Buffer Pool Size</h4> Size in MB   </div></div>	
+		<div id=tableright><div class=column-in> </div></div> 
+	</div>
+
+	<div id=tablerow>
+                <div id=tableleft><div class=column-in> </div></div>
+		<div id=tablemiddle><div class=column-in> <?php  $pages->graphs_innodb_log_file_size();  ?>  </div></div>
+                <div id=tablemiddle><div class=column-in> <?php  $pages->graphs_innodb_buffer_pool_size();  ?>  </div></div>
+		<div id=tableright><div class=column-in> </div></div>
+        </div>
+
+
+
+</div> <!-- tablecontainer  -->
+
+
+
+   </div>
+
+   <div class="tab-page" id="tab-pane-3">
+      <h2 class="tab">Mark Leith's pshelper</h2>
+	<div id="ps_tgctl"> Top Global Consumers by Total Latency AJAX </div>
+	<div id="ps_tgcal"> Top Global Consumers by Average Latency AJAX</div>
+	<div id="ps_95per"> Statements with runtimes in 95th_percentile AJAX </div>
+	<div id="ps_sfts"> Statements with Full Table Scans AJAX </div>
+	<div id="ps_tgtl"> Top IO by thread AJAX </div>
+	
+
+   </div>
+
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=ps_tgtl",
+      dataType: 'json',
+      success: function(data)      {
+
+       	var html = '<h4>Top IO by thread</h4><div id=tablecontainer><div id=tablerow><div id=tableleft><div class=column-in><h4>User</h4></div></div><div id=tablemiddle><div class=column-in><h4>Count Star</h4></div></div>	<div id=tablemiddle><div class=column-in><h4>Total Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Min Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Avg Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Max Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Thread Id</h4></div></div><div id=tableright><div class=column-in><h4>Processlist Id</h4></div></div></div>', ajax_results;  
+	for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>"+ajax_results.user+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.count_star+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.total_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.min_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.avg_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.max_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.thread_id+"</div></div><div id=tableright><div class=column-in>"+ajax_results.processlist_id+"</div></div></div>"
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#ps_tgtl').html(html);
+      }
+    });
+  });
+  </script>
+
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=ps_tgctl",
+      dataType: 'json',
+      success: function(data)      {
+        var html = '<h4>Top Global Consumers by Total Latency</h4><div id=tablecontainer><div id=tablerow><div id=tableleft><div class=column-in><h4>Event Class</h4></div></div><div id=tablemiddle><div class=column-in><h4>Total Events</h4></div></div><div id=tablemiddle><div class=column-in><h4>Total Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Min Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Avg Latency</h4></div></div><div id=tableright><div class=column-in><h4>Max Latency</h4></div></div></div>', ajax_results;          
+	for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>"+ajax_results.event_class+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.total_events+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.total_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.min_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.avg_latency+"</div></div><div id=tableright><div class=column-in>"+ajax_results.max_latency+"</div></div></div>"
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#ps_tgctl').html(html);
+      }
+    });
+  });
+  </script>
+
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=ps_tgcal",
+      dataType: 'json',
+      success: function(data)      {
+        var html = '<h4>Top Global Consumers by Average Latency</h4><div id=tablecontainer><div id=tablerow><div id=tableleft><div class=column-in><h4>Event Class</h4></div></div><div id=tablemiddle><div class=column-in><h4>Total Events</h4></div></div><div id=tablemiddle><div class=column-in><h4>Total Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Min Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Avg Latency</h4></div></div><div id=tableright><div class=column-in><h4>Max Latency</h4></div></div></div>', ajax_results;          
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>"+ajax_results.event_class+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.total_events+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.total_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.min_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.avg_latency+"</div></div><div id=tableright><div class=column-in>"+ajax_results.max_latency+"</div></div></div>"
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#ps_tgcal').html(html);
+      }
+    });
+  });
+  </script>
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=ps_95per",
+      dataType: 'json',
+      success: function(data)      {
+        var html = '<h4>Statements with runtimes in 95th_percentile</h4><div id=tablecontainer><div id=tablerow><div id=tableleft><div class=column-in><h4>Query</h4></div></div><div id=tablemiddle><div class=column-in><h4>Full Scan</h4></div></div><div id=tablemiddle><div class=column-in><h4>Exec Count</h4></div></div><div id=tablemiddle><div class=column-in><h4>Err Count</h4></div></div><div id=tablemiddle><div class=column-in><h4>Warn Count</h4></div></div><div id=tablemiddle><div class=column-in><h4>Total Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Max Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Avg Latency</h4></div></div><div id=tablemiddle><div class=column-in><h4>Rows Sent</h4></div></div><div id=tablemiddle><div class=column-in><h4>Rows Sent Avgvg</h4></div></div><div id=tableright><div class=column-in><h4>Rows Scanned</h4></div></div></div>', ajax_results;          
+	for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>"+ajax_results.query+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.full_scan+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.exec_count+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.err_count+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.warn_count+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.total_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.max_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.avg_latency+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.rows_sent+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.rows_sent_avg+"</div></div><div id=tableright><div class=column-in>"+ajax_results.rows_scanned+"</div></div></div>"
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#ps_95per').html(html);
+      }
+    });
+  });
+  </script>
+
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=ps_sfts",
+      dataType: 'json',
+      success: function(data)      {
+        var html = '<h4>Statements with Full Table Scans</h4><div id=tablecontainer><div id=tablerow><div id=tableleft><div class=column-in><h4>Query</h4></div></div><div id=tablemiddle><div class=column-in><h4>Exec Count</h4></div></div><div id=tablemiddle><div class=column-in><h4>No Index Used Count</h4></div></div><div id=tablemiddle><div class=column-in><h4>No Good Index Used Count</h4></div></div><div id=tableright><div class=column-in><h4>No Index Used Pct</h4></div></div></div>', ajax_results;          
+	for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>"+ajax_results.query+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.exec_count+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.no_index_used_count+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.no_good_index_used_count+"</div></div><div id=tableright><div class=column-in>"+ajax_results.no_index_used_pct+"</div></div></div>"
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#ps_sfts').html(html);
+      }
+    });
+  });
+  </script>
+
+
+
+   <div class="tab-page" id="tab-pane-4">
+      <h2 class="tab">Documentation</h2>
+		<div id="documentation_ajax"> AJAX will populate here</div>
+   </div>
+
+
+  
+
+</div>
+<!-- tab pane closed -->
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=documentation&id=32",
+      dataType: 'json',
+      success: function(data)      {
+         var html = '<div id=tablecontainer>', ajax_results; 
+ 
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>Chapter:"+ajax_results.chapter+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_title+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last Update:"+ajax_results.date_recorded+" </div></div><div id=tableright><div class=column-in>Page Number: "+ajax_results.page_number+"</div></div></div><div id=tablerow><div id=tableleft><div class=column-in></div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_txt+" </div></div><div id=tableright><div class=column-in></div></div></div>" 
+
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#documentation_ajax').html(html);
+      }
+    });
+  });
+  </script>
+
+
+<script type="text/javascript">
+setupAllTabs();
+</script>
+

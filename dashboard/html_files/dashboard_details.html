@@ -1,0 +1,68 @@
+<?php
+require("./sqlmot_pages_class.php");
+
+$pages= new pages();
+$pages->page=$_GET[page];
+$info=$pages->sql_dashboard_details();
+?>
+<div id="header_title_page"><h4>SQLHJALP.com Monitor (SQLMOT) CRON/DASHBOARD DETAILS</h4></div>
+
+<div class="tab-pane" id="tab-pane-1">
+
+   <div class="tab-page">
+      <h2 class="tab">General</h2>
+
+<div id="information_list">
+
+<div id=tablecontainer>
+
+	<div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>Cron ID</h4> <?php echo $info['cron_id'] ?> </div></div>
+		<div id=tablemiddle><div class=column-in><h4>Name</h4>  <?php echo $info['name'] ?> </div></div>
+                <div id=tablemiddle><div class=column-in><h4> Status </h4> <?php echo $info['status'] ?> </div></div>
+              	<div id=tableright><div class=column-in> <h4>Type</h4>
+                <?php 
+                $record=array();
+                $record['id']=$info['cron_id'];
+                $record['display']=$info['cron_type'];
+                $record['defaultvalue']="OFF";
+                $record['updatetable']="cron";
+                $record['updatefield']="cron_type";
+                $record['mode']="list";
+                $record['jquery']="cron_type";
+                echo $sqlmot->select_display($record);
+                ?>
+                </div></div> 
+        </div>
+
+        <div id=tablerow>
+
+		<div id=tableleft><div class=column-in> <h4>Last Ran</h4> <?php echo $info['date_recorded']; ?></div></div>
+                <div id=tablemiddle><div class=column-in><h4>Failed Response</h4> </div></div>
+		<div id=tablemiddle><div class=column-in> <?php echo $info['response'];?>  </div></div>
+                <div id=tableright><div class=column-in></div></div>
+        </div>
+</div> <!-- tablecontainer  -->
+</div><!-- information_list  -->
+<div class=cleaner>&nbsp;</div>
+
+
+ </div>
+
+   <div class="tab-page" id="tab-pane-2" >
+      <h2 class="tab">Graphs</h2>
+	
+	<img src="./graphs.php">
+
+   </div>
+
+   <div class="tab-page" id="tab-pane-3">
+      <h2 class="tab">Documentation</h2>
+		<?php echo $pages->format_documentation(5);  ?> 
+   </div>
+</div>
+<!-- tab pane closed -->
+<script type="text/javascript">
+setupAllTabs();
+</script>
+

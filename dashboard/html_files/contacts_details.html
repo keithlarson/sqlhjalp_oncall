@@ -1,0 +1,110 @@
+<?php
+require("./sqlmot_pages_class.php");
+
+$pages= new pages();
+$pages->page=$_GET[page];
+$info=$pages->sql_contact_details($_GET['id']);
+?>
+
+<div id="header_title_page"><h4>SQLHJALP.com Monitor (SQLMOT) CONTACT DETAILS</h4></div>
+
+<div class="tab-pane" id="tab-pane-1">
+
+   <div class="tab-page">
+      <h2 class="tab">General</h2>
+
+<div id="information_list">
+
+<div id=tablecontainer>
+
+	<div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>ID</h4> <?php echo $info['contact_id'] ?> </div></div>
+                <div id=tableright><div class=column-in>  
+		<h4>Email</h4>
+                <?php 
+                $record=array();
+                $record[id]=$info['contact_id'];        
+                echo $pages->name_display($info['email'],$record,"contact","email", "list");
+                ?>
+
+		</div></div>
+        </div>
+
+
+	<div id=tablerow>
+
+		<div id=tableleft><div class=column-in>
+                <h4>First Name</h4>
+                <?php 
+                $record=array();
+                $record[id]=$info['contact_id'];        
+                echo $pages->name_display($info['first_name'],$record,"contact","first_name", "list");
+                ?>
+                 </div></div>
+                <div id=tableright><div class=column-in>
+                <h4>Last Name</h4>
+                <?php 
+                $record=array();
+                $record[id]=$info['contact_id'];        
+                echo $pages->name_display($info['last_name'],$record,"contact","last_name", "list");
+                ?>
+
+                 </div></div>
+
+	</div>	
+
+
+
+
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>Mobile Phone Number</h4>
+		(ie: 13035555555)
+		<?php 
+		$record=array();
+		$record[id]=$info['contact_id'];	
+		echo $pages->name_display($info['mobile_phone'],$record,"contact","mobile_phone", "list");
+		?></div></div>
+
+                <div id=tableright><div class=column-in><h4>Mobile Email Domain</h4>
+		<?php 
+
+                $record=array();
+                $record['id']=$info[contact_id];
+                $record['display']=$info['mobile_domain'];
+                $record['defaultvalue']="txt.att.net";
+                $record['updatetable']="contact";
+                $record['updatefield']="mobile_domain";
+                $record['mode']="list";
+                $record['jquery']="mobile_domain";
+                echo $pages->select_display($record);
+
+		?></div></div>
+
+        </div>
+
+
+
+</div> <!-- tablecontainer  -->
+</div><!-- information_list  -->
+<div class=cleaner>&nbsp;</div>
+
+
+ </div>
+
+
+
+    <div class="tab-page"  id="tab-pane-3">
+      <h2 class="tab">Documentation</h2>
+		<?php  echo $pages->format_documentation(23); ?>
+   </div> 
+
+</div>
+<!-- tab pane closed -->
+
+
+
+
+<script type="text/javascript">
+setupAllTabs();
+</script>
+

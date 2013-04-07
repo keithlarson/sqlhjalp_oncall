@@ -1,0 +1,100 @@
+<div id="header_title_page"><h4>SQLHJALP.com Monitor (SQLMOT) DASHBOARD</h4></div>
+
+<div class="tab-pane" id="tab-pane-1">
+
+   <div class="tab-page">
+      <h2 class="tab">General</h2>
+
+<div id="page_list">
+<div id=tablecontainer>
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>CRON ID</h4> </div></div>
+                <div id=tablemiddle><div class=column-in><h4>Name</h4></div></div>
+		<div id=tablemiddle><div class=column-in><h4>Status</h4></div></div>
+		<div id=tablemiddle><div class=column-in><h4>Threshold</h4></div></div>
+		<div id=tablemiddle><div class=column-in><h4>Last Ran</h4></div></div>
+		<div id=tableright><div class=column-in><h4>Response</h4></div></div>
+
+        </div>
+
+        <div id=tablerow>
+                
+                <div id=tableleft><div class=column-in> <h4></h4> </div></div>
+                <div id=tablemiddle><div class=column-in><h4></h4></div></div>
+                <div id=tablemiddle><div class=column-in>No Dashboard Data Available<h4></h4></div></div>
+                <div id=tablemiddle><div class=column-in><h4></h4></div></div>
+                <div id=tablemiddle><div class=column-in><h4></h4></div></div>
+                <div id=tableright><div class=column-in><h4></h4></div></div>
+
+ 
+
+        </div>
+</div> <!-- tablecontainer  -->
+</div><!-- page list  -->
+
+<div class=cleaner>&nbsp;</div>
+
+  <!-- Page List AJAX  -->
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()
+  {
+    $.ajax({
+      url: './index.php',
+      data: "page=API&jquery=dashboard",
+      dataType: 'json',
+      success: function(data)
+      {
+       	  var html = '<div id=tablecontainer><div id=tablerow><div id=tableleft><div class=column-in> <h4>CRON ID</h4> </div></div><div id=tablemiddle><div class=column-in><h4>Name</h4></div></div><div id=tablemiddle><div class=column-in><h4>Status</h4></div></div><div id=tablemiddle><div class=column-in><h4>Threshold</h4></div></div><div id=tablemiddle><div class=column-in><h4>Last Ran</h4></div></div><div id=tableright><div class=column-in><h4>Response</h4></div></div></div>', ajax_results;
+ 
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+
+		html += "<div id=tablerow><div id=tableleft><div class=column-in><a href='./?page=dashboard_details&cron_id="+ajax_results.cron_id+"'>"+ajax_results.cron_id+"</a></div></div><div id=tablemiddle><div class=column-in>"+ajax_results.name+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.status+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.threshold+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.last_ran+"</div></div><div id=tableright><div class=column-in>"+ajax_results.response+" </div></div></div>"
+
+
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#page_list').html(html);
+      }
+    });
+  });
+  </script>
+
+   </div> <!-- tab-pane-1  -->
+
+   <div class="tab-page" id="tab-pane-2">
+      <h2 class="tab">Documentation</h2>
+		<div id="documentation_ajax"> AJAX will populate here</div>
+   </div>  <!-- tab-pane-2  -->
+
+</div>  <!-- tab-pane  -->
+<!-- tab pane closed -->
+
+  <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=documentation&id=8",
+      dataType: 'json',
+      success: function(data)      {
+         var html = '<div id=tablecontainer>', ajax_results; 
+ 
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>Chapter:"+ajax_results.chapter+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_title+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last Update:"+ajax_results.date_recorded+" </div></div><div id=tableright><div class=column-in>Page Number: "+ajax_results.page_number+"</div></div></div><div id=tablerow><div id=tableleft><div class=column-in></div></div><div id=tablemiddle><div class=column-in>"+ajax_results.documentation_txt+" </div></div><div id=tableright><div class=column-in></div></div></div>" 
+
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#documentation_ajax').html(html);
+      }
+    });
+  });
+  </script>
+
+<script type="text/javascript">
+setupAllTabs();
+</script>
+
+
+

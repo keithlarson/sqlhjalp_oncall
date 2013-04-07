@@ -1,0 +1,545 @@
+body {
+	margin: 0px;
+}
+
+
+:invalid {
+  border-color: #e88;
+  -webkit-box-shadow: 0 0 5px rgba(255, 0, 0, .8);
+  -o-box-shadow: 0 0 5px rbba(255, 0, 0, .8);
+  -ms-box-shadow: 0 0 5px rbba(255, 0, 0, .8);
+  box-shadow:0 0 5px rgba(255, 0, 0, .8);
+}
+
+:required {
+  border-color: #88a;
+  -webkit-box-shadow: 0 0 5px rgba(0, 0, 255, .5);
+  -o-box-shadow: 0 0 5px rgba(0, 0, 255, .5);
+  -ms-box-shadow: 0 0 5px rgba(0, 0, 255, .5);
+  box-shadow: 0 0 5px rgba(0, 0, 255, .5);
+}
+
+
+
+
+form {
+  width:200px;
+  margin: 20px auto;
+}
+
+input {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  border:1px solid #ccc;
+  font-size:12px;
+  width:200px;
+  min-height:30px;
+  display:block;
+  margin-bottom:15px;
+  margin-top:5px;
+  outline: none;
+
+  -webkit-border-radius:5px;
+ 
+  -o-border-radius:5px;
+  -ms-border-radius:5px;
+  border-radius:5px;
+}
+
+input[type=submit] {
+  background:none;
+  padding:5px;
+}
+
+
+input:required:invalid, input:focus:invalid {
+  background-image: url(../images/invalid.png);
+  background-position: right top;
+  background-repeat: no-repeat;
+}
+input:required:valid {
+  background-image: url(../images/valid.png);
+  background-position: right top;
+  background-repeat: no-repeat;
+}
+
+
+
+#header {
+	height: 100px;
+}
+
+#centreposition {
+	padding-right: 20px;
+	padding-left: 22%;
+	height: 35px;
+
+}
+
+#debug{
+	padding:  0px 0px  0px 0px;
+        color: red;
+}
+
+#header_logo{
+	position: absolute;
+        top: 100px;
+        padding:  0px 0px  0px 0px;
+        color: #999999;
+        font-size: 80%;
+       	background-image: url(../images/sqlhjalp_logo.gif); 
+        background-repeat: no-repeat;
+        background-color: #FFFFFF;
+	width: 100%;
+	border: 0px solid #999999;
+	padding: 0px;
+        font-size: 80%;
+        height: 35px;
+	left: 181px;
+
+}
+
+#spacer {
+	padding-left: 0px;
+	width: 100%;
+
+}
+
+#header_grey_top {
+	position: absolute;
+	top: 100px;
+	left: 0px;
+	padding:  0px 0px  0px 0px;
+        border-top-width: 0px;
+        border-top-style: solid;
+        font-size: 80%;
+        background-image: url(../images/sqlhjalp_grey_top.gif);
+        background-repeat: no-repeat;
+        height: 35px;
+        width: 180px;
+}
+
+
+#right {
+	width: 130px;
+	position: absolute;
+	top: 100px;
+	right: 0px;
+	height: 200px;
+}
+
+#pageintro{
+        position: absolute;
+        width: 100%; 
+        border: 0px solid #999999;
+}
+
+#breadcrumbs{
+
+
+}
+
+#outershell_full {
+        position: absolute;
+        top: 175px;
+        left: 180px;
+	width: 1000px;
+	height: 100px;
+	background-color: #FFFFFF;
+	border: 0px solid #999999;
+}
+
+#outershell {
+        position: absolute;
+        top: 80px;
+        left: 180px;
+        height: 100px;
+        background-color: #FFFFFF;
+        width: 1070px; 
+        border: 0px solid #999999;
+}
+ 
+#innershell{
+	top: 50px;
+   	width: 100%;
+        position: absolute;
+        height: 500%;
+	background-color: white;
+	border: 0px solid #999999;
+}
+
+
+#sqlcity{
+        position: absolute;
+        top: 135px;
+        left: 0px;
+        padding:  0px 0px  0px 0px;
+        border-top-width: 0px;
+        border-top-style: solid;
+        font-size: 80%;
+        background-image: url(../images/roads.gif);
+        background-repeat: no-repeat;
+        height: 120px;
+        width: 180px;
+}
+
+
+#nosqlcity{
+        position: absolute;
+        top: 135px;
+        left: 0px;
+        padding:  0px 0px  0px 0px;
+        border-top-width: 0px;
+        border-top-style: solid;
+        font-size: 80%;
+        height: 30px;
+        width: 180px;
+}
+
+#header_blue{
+        position: absolute;
+        top: 135px;
+        left: 179px;
+        padding:  0px 0px  0px 0px;
+        border-top-width: 0px;
+        border-top-style: solid;
+        font-size: 80%;
+        background-image: url(../images/repeater.gif);
+        background-repeat: repeat;
+        height: 120px;
+        width:100% 
+}
+
+#header_blue_sm{
+        position: absolute;
+        top: 135px;
+        left: 179px;
+        padding:  0px 0px  0px 0px;
+        border-top-width: 0px;
+        border-top-style: solid;
+        font-size: 80%;
+        background-image: url(../images/repeater.gif);
+        background-repeat: repeat;
+        height: 30px;
+        width:100%
+}
+
+#header_blue_end{
+	position: absolute;
+        top: 135px;
+       	right: 0px; 
+	background-image: url(../images/repeater_end_right.gif);
+	background-repeat: repeat;
+	width: 50px;
+}
+
+#header_blue_end_sm{
+        position: absolute;
+        top: 135px;
+        right: 0px;
+        background-image: url(../images/repeater_end_right.gif);
+        background-repeat: repeat;
+        width: 50px;
+}
+
+#header_navigation{
+	position: absolute;
+        top: 237px;
+        left: 179px;
+        padding:  0px 0px  0px 0px;
+        border-top-width: 0px;
+        border-top-style: solid;
+        font-size: 80%;
+        background-image: url(../images/repeater.gif);
+        background-repeat: repeat;
+        height: 20px;
+       	width:1200px; 
+}
+
+#header_navigation_sm{
+        position: absolute;
+        top: 39px;
+        left: 179px;
+        padding:  0px 0px  0px 0px;
+        border-top-width: 0px;
+        border-top-style: solid;
+        font-size: 80%;
+        background-image: url(../images/repeater.gif);
+        background-repeat: repeat;
+        height: 20px;
+        width:1200px;
+}
+
+.bluebutton1 {
+        font-family: Arial, Verdana, Helvetica, sans-serif;
+        float:left;
+        padding: 0px 0px 0px 0px;
+        width: 75px;
+        font-size:8pt;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: normal;
+        text-align: center;
+        margin-bottom: 0px;
+        margin-top: 0px;
+        text-transform : capitalize;
+}
+
+.bluebutton1 a {
+        padding: 5px 0px 0px 0px;
+        font-weight: normal;
+        text-decoration: none;
+        width: 75px;
+        font-size:8pt;
+        display: block;
+        color: #ffffff;
+        text-transform : capitalize;
+        background-image : url(../images/css_nav_off.gif);
+        background-repeat : no-repeat;
+        background: url(../images/css_nav_off.gif);
+}
+
+.bluebutton1 a:hover {
+font-weight: normal;
+text-decoration: none;
+width: 75px;
+display: block;
+color: #ffffff;
+text-transform : capitalize;
+background-image : url(../images/css_nav_on.gif);
+background-repeat : no-repeat;
+background: url(../images/css_nav_on.gif);
+}
+
+.bluebuttonwrap {
+        float:left;
+        padding: 0px 0px 0px 0px;
+        width: 150px;
+        margin-bottom: 0px;
+        margin-top: 0px;
+}
+
+
+#under_navigation{
+        position: absolute;
+        top: 255px;
+        left: 179px;
+        padding:  0px 0px  0px 0px;
+        border-top-width: 0px;
+        border-top-style: solid;
+        font-size: 80%;
+        background-image: url(../images/sqlhjalp_grey.gif);
+        background-repeat: repeat;
+        height: 15px;
+        width:100%;
+}
+
+#under_navigation_sm{
+        position: absolute;
+        top: 65px;
+        left: 179px;
+        padding:  0px 0px  0px 0px;
+        border-top-width: 0px;
+        border-top-style: solid;
+        font-size: 80%;
+        background-image: url(../images/sqlhjalp_grey.gif);
+        background-repeat: repeat;
+        height: 15px;
+        width:1400px;
+}
+
+
+
+#footer{
+	position: absolute;
+	width:100%;
+	bottom: 0px;
+	left: 179px;
+}
+
+#footer_navigation{
+	position:absolute; 
+	bottom:10px;
+        height: 15px;
+	font-size: 80%;
+
+}
+
+
+#google_search{
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        width: 90px;
+}
+
+#single_line_form {}
+
+.cf:before, .cf:after{
+    content:"";
+    display:table;
+}
+ 
+.cf:after{
+    clear:both;
+}
+ 
+
+
+
+#page_title_full{
+    font-family:verdana, arial, helvetica, sans-serif;
+    color:#333333;
+    font-size:10pt;
+    position:absolute;
+    left:20px;
+    padding:10px;
+    width: 800px;
+}
+
+#page_title_left{
+    font-family:verdana, arial, helvetica, sans-serif;
+    color:#333333;
+    font-size:10pt;
+    top: 20px;
+    position:absolute;
+    left:20px;
+    padding:10px;
+
+}
+
+#page_title_right{
+    font-family:verdana, arial, helvetica, sans-serif;
+    color:#333333;
+    font-size:10pt;
+    left:500px;
+    position:absolute;
+    padding:10px;
+    top: 20px;
+}
+
+#list_left{
+    top:35px;
+    font-family:verdana, arial, helvetica, sans-serif;
+    color:#333333;
+    font-size:10pt;
+    position:absolute;
+    left:10px;
+    padding: 10px;
+    width:50%; 
+}
+
+
+#list_right{
+    top:35px;
+    font-family:verdana, arial, helvetica, sans-serif;
+    color:#333333;
+    font-size:10pt;
+    position:absolute;
+    left:500px; 
+    padding:10px;
+    width:50%;
+}
+
+
+#repeat_row
+{
+        color: #036036;
+        border-color: #333;
+        border-width: 1pt;
+        border-style: solid;
+        background-color: #eeeeee;
+}
+#repeat_row_even
+{
+        border-color: #333333;
+        border-width: 1pt;
+        border-style: solid;
+        background-color: #E8E8E8;
+	width: 100%;
+	vertical-align: top;	
+	position:relative;
+	top:-5px;
+
+
+}
+#repeat_row_odd
+{
+        border-color: #333333;
+        border-width: 0pt;
+        border-style: solid;
+        background-color: #F8F8F8;
+	height: 35px;
+	width: 100%; 
+	vertical-align: top;
+	position:relative;
+        top:-5px;
+
+}
+
+
+ .cleaner {
+    clear:both;
+    height:1px;
+    font-size:1px;
+    border:none;
+    margin:0; padding:0;
+    background:transparent;
+    display:none;
+    }
+
+  /* THE DIV TO TABLE TECHNIQUE */
+
+  #tablecontainer {
+    width: 100%;
+    padding:0;
+    display: table;
+    border: 0px solid black;
+    }
+
+  #tablerow  {
+    display: table-row;
+    }
+
+  #tableleft {
+    width:150px;
+    padding:0;
+
+    display: table-cell;
+    }
+
+  #tableright {
+    width:150px;
+
+    display: table-cell;
+    }
+
+  #tablemiddle {
+    padding: 10px;
+
+    display: table-cell;
+    }
+
+    /* IE ONLY */
+  * html #tablecontainer {
+   
+    }
+  * html #tablerow {
+  
+    }
+  * html #tableleft {
+    float:left;
+    }
+  * html #tableright {
+    float:right;
+    }
+  * html #tablemiddle {
+    float: left;
+    width: 100%; 
+    }
+  * html .cleaner {
+    display:block;
+    }
+
+/* ]]> */
+
+
