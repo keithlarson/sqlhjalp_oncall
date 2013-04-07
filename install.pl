@@ -29,32 +29,57 @@ use Net::Address::IP::Local;
 # Get the local system's IP address that is "en route" to "the internet" I use this for mysql permissions later. 
 my $ipaddress= Net::Address::IP::Local->public;
 
-# my $hostname = hostname;
-# Cwd & Sys::Hostname are  required. If you need this installed you can use the command below 
-# perl -MCPAN -e 'install Net::Address::IP::Local'
-
 # Clear Screen and get started. 
 system("clear");
 
-print "THIS IS NOT PRODUCTION READY. UNDER DEVELOPMENT ONLY. SEE README File for concepts \n";
-
 
 # INTRODUCTION 
-print "Welcome to the SQLHAJLP.com Monitor script\n
-Code is available at https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor \n 
-This system currently uses email and txt and voice for notifications. \n 
+print "
+Code is available from https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor \n
+
+This is a LAMP stack monitoring application. Alterations for web servers other than APACHE on LINUX are up to you.\n
+
+This application is designed for an Intranet. If you would like to place this on the public web I would recommend HTTP Password protection.\n
+
+This system currently uses email and txt and voice for notifications. \n
+
 For fast and easy txt and voice we use www.twilio.com \n
-You can create a free account at www.twilio.com for testing purposes.\n 
-Overall rather cheap but pricing can be found here https://www.twilio.com/voice/pricing \n 
-\n\n
-This script will evaluate and start the installations for the required PERL modules via cpan. \n
-You will need to have valid permissions to install CPAN modules and create database a user. \n
-What user this monitor is executed as is up to you. \n
-Since you could want to monitor local logs, execute scripts and etc either a strong sudo user or other options will have to be considered.\n 
-Since I am unsure of your current Perl installation... I will use wget to start the configuration while I build out your perl install. \n
-If you do not have wget installed, please do so first. 'yum -y install wget' \n
-Do you want to continue? (Y|N): 
-";
+
+You can create a free account at www.twilio.com for testing purposes.\n
+
+Overall rather cheap but pricing can be found here https://www.twilio.com/voice/pricing \n
+\n
+The application does the following:\n
+--Schedules on call rotations for users.\n
+--Notifications via email\n
+--Notifications via a phone call\n
+        --So you do not sleep through another txt message overnight\n
+--Notifications via a txt message\n
+--Allows dynamic cron creation for dynamic monitoring options.\n
+--Monitor MySQL connections\n
+--Monitor MySQL performance\n
+--Monitor HTTP results\n
+--Monitor HTTP results\n
+--Monitor results via SSH command\n
+--Monitor results via MySQL query\n
+--Monitor results from shell command\n
+
+\n
+The install.pl script is designed to install via modules. So if you need to reinstall a certain aspect you can rerun the script and just execute the desired section.\n
+
+Installation is handled by this prebuilt Perl script.\n
+
+This script will evaluate and start the installations for the required PERL modules via cpan if you allow it.\n
+
+You will need to have valid permissions to install CPAN modules and create database a users.\n
+
+Since I am unsure of your current Perl installation... I will use wget to start the configuration while I build out your perl install.What MySQL username and password is used for this monitor to execute as is up to you. I suggest a new user and password. This installation will create and grant a user for just the required database. If you need additional database permissions that is up to you.\n
+\n
+If you do not have wget installed, please do so first. 'yum -y install wget'\n
+
+What user account this monitor is executed as is up to you. ie: root \n
+
+Do you want to continue? (Y|N): ";
 
 my $start = <>;
 chomp($start);
@@ -67,7 +92,6 @@ print "You will need Permission to install CPAN modules. Do you have permission 
 my $cpan = <>;
 chomp($cpan);
 $cpan=uc($cpan);
-
 
 
 
@@ -139,17 +163,9 @@ if(uc($config) eq "Y"){
 	open(FILE,'+>','./config/config.info') or die $!;
 	print FILE ("# THIS IS A FILE THAT IS PARSED BY ALL SCRIPTS OF THE SQLMOT SYSTEM \n");
 
-
-	print "Will this application be running under HTTPS: (Y|N) ";
-        my $https= <>;
-        chomp($https);
-        print "\n";
-	if(uc($https) eq "Y"){ $https=1; } else { $https=0; }
-        print FILE ("SQLMOT_HTTPS===".$https." \n");
-
-
 	system("rm -f /tmp/mysql.sql");
         open(MYSQLFILE,'+>', '/tmp/mysql.sql') or die $!;
+	open(MYSQLRM,'+>', './sql/cleanmysql.sql') or die $!;
  
 	print "What database host will we use for the SQLHJALP MONITOR? ie: localhost...  ";
 	my $host= <>;
@@ -177,17 +193,27 @@ if(uc($config) eq "Y"){
         
 		$hostname = Net::Address::IP::Local->public;
 
+		print MYSQLFILE ("SET GLOBAL event_scheduler=ON;\n");
 		print MYSQLFILE ("CREATE DATABASE IF NOT EXISTS sqlhjalp_monitor DEFAULT CHARACTER SET latin1;\n");
-        	print MYSQLFILE ("CREATE USER '$username'\@'$hostname' IDENTIFIED BY '$password'; \n");
-		print MYSQLFILE ("CREATE USER '$username'\@'$host' IDENTIFIED BY '$password'; \n");
-		print MYSQLFILE ("CREATE USER '$username'\@'localhost' IDENTIFIED BY '$password'; \n");
+		print MYSQLRM 	("SET GLOBAL event_scheduler=OFF;\n");
+		print MYSQLRM   ("DROP DATABASE IF EXISTS sqlhjalp_monitor; \n");
+		print MYSQLRM   ("DROP USER '$username'\@'$hostname' ;  \n");
+		print MYSQLRM   ("DROP USER '$username'\@'$host' ;  \n");
 
 		print MYSQLFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON `sqlhjalp_monitor`.* TO '$username'\@'$hostname' IDENTIFIED BY '$password'; \n ");
-		print MYSQLFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON `sqlhjalp_monitor`.* TO '$username'\@'localhost' IDENTIFIED BY '$password'; \n ");
+
 		print MYSQLFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON `sqlhjalp_m
 onitor`.* TO '$username'\@'$host' IDENTIFIED BY '$password';  \n");
-		print MYSQLFILE ("FLUSH PRIVILEGES;");
 
+		if($hostname ne 'localhost' ){
+			print MYSQLRM   ("DROP USER '$username'\@'localhost' ;  \n");
+			print MYSQLFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON `sqlhjalp_monitor`.* TO '$username'\@'localhost' IDENTIFIED BY '$password'; \n ");
+                }
+
+
+		print MYSQLFILE ("FLUSH PRIVILEGES;");
+		print MYSQLRM ("FLUSH PRIVILEGES;");
+	close (MYSQLRM);
         close (MYSQLFILE);
 
 	print "What is the preferred Admil email Account? ";
@@ -197,8 +223,14 @@ onitor`.* TO '$username'\@'$host' IDENTIFIED BY '$password';  \n");
 	print FILE ("SQLMOT_ADMIN_EMAIL===$admin_email \n");
 
 
+	print "What is the url path in which this will be located? (ie: /sqlhjalp_monitor/) ";
+        my $loc= <>;
+        chomp($loc);
+        print "\n";
+      	print FILE ("SQLMOT_LOCATION_HTTP===$loc \n"); 
+
+
 	print FILE ("SQLMOT_DB_DATABASE===sqlhjalp_monitor \n");
-        print FILE ("SQLMOT_LOCATION_HTTP===/sqlhjalp_monitor/ \n");
         print FILE ("# THE FOLLOWING KEY IS USED TO ENCRYPT passwords. \n");
         print FILE ("# Please to change this during install. Once you enter a value, changing it will require you to update all passwords in this system. \n");
         print FILE ("# Note that the IV must match the chosen cipher's blocksize bytes in length \n");
@@ -259,15 +291,16 @@ onitor`.* TO '$username'\@'$host' IDENTIFIED BY '$password';  \n");
 	}
 
 	my $leith;
-	print "Would you like to install and enable Mark Leith's DB Performance procedures? \n  More information can be found here http://www.markleith.co.uk/ps_helper/ \n We will enable graphs related to these if enabled. (Y|N) ";
+	print "Would you like to install and enable Mark Leith's DB Performance procedures? \nMore information can be found here http://www.markleith.co.uk/ps_helper/ \nData will be made available to you if these are enabled. (Y|N) ";
 	$leith= <>;
 	chomp($leith);
 	print FILE ("# http://www.markleith.co.uk/ps_helper/ \n");
 
 	if(uc($leith) eq 'Y'){ 
-		$leith=1;
+
 		system("rm -f /tmp/create_leith.sql");
 		open(LEITHFILE,'+>', '/tmp/create_leith.sql') or die $!; 
+		open(LEITHRM,'+>', './sql/clean_leith.sql') or die $!;
 		print "What database host will we install Mark Leith's DB Performance procedures onto? (ie: master database) ";
 		my $leith_host= <>;
 		chomp($leith_host);
@@ -288,86 +321,71 @@ onitor`.* TO '$username'\@'$host' IDENTIFIED BY '$password';  \n");
                
 		
 		$hostname= Net::Address::IP::Local->public;	
- 
-                print LEITHFILE ("CREATE DATABASE IF NOT EXISTS ps_helper DEFAULT CHARACTER SET utf8;\n");
-                print LEITHFILE ("CREATE USER '$leith_username'\@'$hostname' IDENTIFIED BY '$leith_password'; \n");
-		print LEITHFILE ("CREATE USER '$leith_username'\@'localhost' IDENTIFIED BY '$leith_password'; \n");
 
-                print LEITHFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER, CREATE TABLESPACE ON 'ps_helper'.* TO '$leith_username'\@'$hostname' IDENTIFIED BY '$leith_password';  \n");
-                print LEITHFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER, CREATE TABLESPACE ON 'information_schema'.* TO '$leith_username'\@'$hostname' IDENTIFIED BY '$leith_password'; \n");
-                print LEITHFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER, CREATE TABLESPACE ON 'performance_schema'.* TO '$leith_username'\@'$hostname' IDENTIFIED BY '$leith_password'; \n");
-		
-		print LEITHFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER, CREATE TABLESPACE ON 'ps_helper'.* TO '$leith_username'\@'localhost' IDENTIFIED BY '$leith_password';  \n");                
-		print LEITHFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER, CREATE TABLESPACE ON 'information_schema'.* TO '$leith_username'\@'localhost' IDENTIFIED BY '$leith_password'; \n");                
-		print LEITHFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER, CREATE TABLESPACE ON 'performance_schema'.* TO '$leith_username'\@'localhost' IDENTIFIED BY '$leith_password'; \n");
 
-		print MYSQLFILE ("FLUSH PRIVILEGES;"); 
+		print LEITHRM ("DROP DATABASE IF EXISTS ps_helper ; \n ");
+                print LEITHRM ("DROP USER '$leith_username'\@'$hostname'; \n "); 
 
+		print LEITHFILE ("CREATE DATABASE IF NOT EXISTS ps_helper DEFAULT CHARACTER SET utf8;\n");
+
+                print LEITHFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON `ps_helper`.* TO '$leith_username'\@'$hostname' IDENTIFIED BY '$leith_password';  \n");
+
+	
+		if($hostname ne 'localhost'){	
+		print LEITHRM ("DROP USER '$leith_username'\@'localhost'; \n ");
+
+		print LEITHFILE ("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON `ps_helper`.* TO '$leith_username'\@'localhost' IDENTIFIED BY '$leith_password';  \n");                
+
+		}
+		print LEITHRM ("FLUSH PRIVILEGES;"); 
+                close (LEITHRM);
+
+		print LEITHFILE ("FLUSH PRIVILEGES;"); 
                 close (LEITHFILE);
 
+		print FILE ("LEITH===1 \n");
+	
+              
+               
 
-	} else {
-		$leith=0;
-		my $leith_host;
-		my $leith_username;
-		my $leith_password;
 
-		print FILE ("LEITH_HOST===$leith_host \n");
-        	print FILE ("LEITH_USER===$leith_user \n");
-        	print FILE ("LEITH_PASS===$leith_password \n");
+	        print "Can I create the $leith_username account and database on $leith_host ? (Y|N) ";
+        	my $leith_create= <>;
+        	chomp($leith_create);
+        	print "\n";
+        	if(uc($leith_create) eq 'Y'){
+			system("clear");
+
+                	print "What MySQL username, can I use to create the $leith_username account on $leith_host ? ";
+                	my $leith_a_username= <>;
+                	chomp($leith_a_username);
+                	print "\n";
+
+                	print "Are you using MySQL 5.6 with Mark Leith's DB Performance procedures? (Y|N)  ";
+                	my $version= <>;
+                	chomp($version);
+
+                	print "You will be prompted for the $leith_a_username password to create the user and grants  .....\n";
+                	system("mysql --host=$leith_host --user=$leith_a_username -p < /tmp/create_leith.sql ");
+
+                	print "Downloading the sql and building the ps_helper database .....\n";
+			if(uc($version) eq 'Y'){
+				system("wget http://www.markleith.co.uk/wp-content/uploads/2012/07/ps_helper_56.sql_.txt --output-document=/tmp/ps_helper.sql");
+			} else{ 
+                		system("wget http://www.markleith.co.uk/wp-content/uploads/2012/07/ps_helper_55.sql_.txt --output-document=/tmp/ps_helper.sql");
+			}
+                	print "You will be prompted for the $leith_a_username password to install the ps_helper database  .....\n";
+                	system("mysql --host=$leith_host --user=$leith_a_username -p < /tmp/ps_helper.sql");
+                	
+                
+        	}
+
 	}	
 	print "\n";
-	print FILE ("LEITH===$leith \n");
+
 
 }# End of config file
  close (FILE);
-
-
-
-# LEITH MODULE is dependent on the config file module 
-if($leith == 1){ 
-	print "Do you want me to create the $leith_username account and database on $leith_host ? (Y|N) ";
-	my $leith_create= <>;
-	chomp($leith_create);
-	print "\n";
-	if(uc($leith_create) eq 'Y'){
-
-		print "What database host will we install Mark Leith's DB Performance procedures onto? (ie: master database) ";
-                my $leith_host= <>;
-                chomp($leith_host);
-                print "\n";
-
-
-		print "What MySQL username, can I use to create the $leith_username account on $leith_host ? ";
-		my $leith_a_username= <>;
-		chomp($leith_a_username);
-		print "\n";
-
-		print "What Version of MySQL are you using with Mark Leith's DB Performance procedures? [5.5 or 5.6] \n";	    
-		my $version= <>;
-                chomp($version);	
-		my $leith_file='ps_helper_56.sql_.txt';
-		if($version == 5.5){ $leith_file='ps_helper_55.sql_.txt';  }
-
-		print "\n Creating user.....\n";
-		
-		print "You will be prompted for the $leith_a_username password to create the user and grants  .....\n";
-		system("mysql --host=$leith_host --user=$leith_a_username -p < /tmp/create_leith.sql ");
-		#system("rm -f /tmp/create_leith.sql");
-	
-	 
-		print "Downloading the sql and building the ps_helper database .....\n";
-		system("wget http://www.markleith.co.uk/wp-content/uploads/2012/07/$version --output-document=/tmp/ps_helper.sql");
-
-		print "You will be prompted for the $leith_a_username password to install the ps_helper database  .....\n";
-		system("mysql --host=$leith_host --user=$leith_a_username -p < /tmp/ps_helper.sql");
-		system("rm -f /tmp/ps_helper_56.sql_.txt");
-	}
-}
-
-
-
-
 
 
 
@@ -388,43 +406,44 @@ http://reig-email-image-generator.googlecode.com/svn-history/r2/trunk/js/jquery.
 http://webfx.eae.net/download/tabpane102.zip \n
 http://jpgraph.net/download/download.php?p=5 \n
 \n
-Can I download them for you? (Y|N) ";
+Can I download, install and symlink .js & .css files for you? (Y|N) ";
 my $js= <>;
 chomp($js);
 print "\n";
 
 if(uc($js) eq 'Y'){
+	system("clear");
 
 	my $location="dashboard/javascript";
 	print "Downloading and unpacking the javascript files. \n";
 
+	system("wget http://code.jquery.com/jquery-1.9.1.min.js --output-document=$location/jquery-1.9.1.min.js " );
+	system("wget http://code.jquery.com/ui/1.10.2/jquery-ui.min.js --output-document=$location/jquery-ui.min.js");
+	system("wget http://code.jquery.com/ui/1.10.2/jquery-ui.js --output-document=$location/jquery-ui.js");
+	system("wget http://webfx.eae.net/download/tabpane102.zip --output-document=$location/tabpane102.zip ");
+        system("cd $location/; unzip tabpane102.zip;  ln -s ./tabpane/js/tabpane.js tabpane.js;");
+	system("wget http://www.mattkruse.com/javascript/calendarpopup/combined-compact/CalendarPopup.js --output-document=$location/CalendarPopup.js");
+	system("wget http://arshaw.com/fullcalendar/downloads/fullcalendar-1.6.0.zip --output-document=$location/fullcalendar-1.6.0.zip");
+        system("cd $location/; unzip fullcalendar-1.6.0.zip; ln -s ./fullcalendar-1.6.0/fullcalendar/fullcalendar.js fullcalendar.js; ln -s ./fullcalendar-1.6.0/fullcalendar/fullcalendar.min.js fullcalendar.min.js; ");
 	system("wget http://script.aculo.us/dist/scriptaculous-js-1.9.0.zip  --output-document=$location/scriptaculous-js-1.9.0.zip");
         system("cd $location/; unzip scriptaculous-js-1.9.0.zip; ln -s scriptaculous-js-1.9.0 scriptaculous; ");
 
-        system("wget http://webfx.eae.net/download/tabpane102.zip --output-document=$location/tabpane102.zip ");
-        system("cd $location/; unzip tabpane102.zip;  ln -s ./tabpane/js/tabpane.js tabpane.js;");
-
-        system("wget http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js --output-document=$location/jquery-ui.min.js");
-
-        system("wget http://arshaw.com/fullcalendar/downloads/fullcalendar-1.6.0.zip --output-document=$location/fullcalendar-1.6.0.zip");
-        system("cd $location/; unzip fullcalendar-1.6.0.zip; ln -s ./fullcalendar-1.6.0/fullcalendar/fullcalendar.js fullcalendar.js; ln -s ./fullcalendar-1.6.0/fullcalendar/fullcalendar.min.js fullcalendar.min.js; ");
-
-        system("wget http://code.jquery.com/jquery-1.9.1.min.js --output-document=$location/jquery-1.9.1.min.js " );
-        system("wget http://code.jquery.com/jquery-1.9.1.js --output-document=$location/jquery-1.9.1.js ");
+        
+	system("wget http://code.jquery.com/jquery-1.9.1.js --output-document=$location/jquery-1.9.1.js");
+        system("wget http://code.jquery.com/jquery-1.9.1.js --output-document=$location/jquery.js");
         system("wget http://builder.jquerytools.org/v1.2.7/jquery.tools.min.js  --output-document=$location/jquery.tools.min.js ");
-        system("wget http://www.mattkruse.com/javascript/calendarpopup/combined-compact/CalendarPopup.js --output-document=$location/CalendarPopup.js ");
         system("wget http://anotherraid.googlecode.com/svn-history/r190/trunk/ar/tools/inplaceselect.js --output-document=$location/inplaceselect.js ");
         system("wget http://reig-email-image-generator.googlecode.com/svn-history/r2/trunk/js/jquery.selectchain.js --output-document=$location/selectchain.js ");
 
 	system("wget http://jpgraph.net/download/download.php?p=5 --output-document=dashboard/3rd_party_software/jpgraph-3.5.0b1.tar.gz");
 	system("cd dashboard/3rd_party_software/; tar -vxzf jpgraph-3.5.0b1.tar.gz; ln -s jpgraph-3.5.0b1 jpgraph; ");
 
-
+	system("wget http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css --output-document=./css/jquery-ui.css");
 	system("cd dashboard/css; ln -s ../javascript/fullcalendar-1.6.0/fullcalendar/fullcalendar.css fullcalendar.css");
 	system("cd dashboard/css; ln -s ../javascript/fullcalendar-1.6.0/fullcalendar/fullcalendar.print.css fullcalendar.print.css");
-	system("cd dashboard/css; ln -s ../javascript/fullcalendar-1.6.0/demos/cupertino/theme .css cupertino_theme.css");
+	system("cd dashboard/css; ln -s ../javascript/fullcalendar-1.6.0/demos/cupertino/theme.css cupertino_theme.css");
 	system("cd dashboard/css; ln -s ../javascript/tabpane/css/tab.webfx.css tab.webfx.css");
-
+	
 }
 
 
@@ -437,7 +456,7 @@ if(uc($js) eq 'Y'){
 
 system("clear");
 # DATABASE MODULE
- print "You must have created the configuration file module already.\n Can I create the Database user and schema now? {Y|N} ";
+ print "You must have created the configuration file module already.\n Can I create the Database user and schema now? (Y|N) ";
  my $db_process= <>;
  chomp($db_process);
 
@@ -458,31 +477,27 @@ system("clear");
 
  	}
 
+	print "Would you like to load demo data? (Y|N) ";
+        my $demo= <>;
+        chomp($demo);
+        print "\n";
+	
+	$val=3; 
 
+	if(uc($db_process) eq 'Y'){
+		$val=4;	
+	}
 	print " Creating db accounts and add schema \n ";
-        print "You will be prompted 3 times for the $a_username password \n";
+        print "You will be prompted $val times for the $a_username password.  We ask to avoid putting your password on the command line.  \n";
 	system("mysql --host=$host --user=$a_username  -p < /tmp/mysql.sql");
 	system("mysql --host=$host --user=$a_username  -p sqlhjalp_monitor < ./sql/sqlhjalp_monitor.sql");
-	system("mysql --host=$host --user=$a_username  -p sqlhjalp_monitor < /tmp/sqlhjalp_monitor_status.sql");
-	system("rm -f /tmp/mysql.sql");
-
-
+	system("mysql --host=$host --user=$a_username  -p sqlhjalp_monitor < ./sql/sqlhjalp_monitor.data.sql");
+	if(uc($db_process) eq 'Y'){     
+       		system("mysql --host=$host --user=$a_username  -p  sqlhjalp_monitor < ./sql/demo_data.sql"); 
+        }
+ 
 
  }
-
-
-
-
-if($https == 1){ 
-
-print " I NEED TO ADD HTTPS INFO HERE \n";
-
-} else {
-print " I NEED TO ADD HTTP INFO HERE, if any \n";
-
-}
-
-
 
 
 
@@ -495,20 +510,12 @@ chomp($crontab);
 $crontab=uc($crontab);
 if($crontab eq 'Y'){ 
 	my $dir = getcwd;
-	system("rm -f /tmp/crontab.file");
+
 	system("crontab -l > /tmp/crontab.file ; ");
 	system("echo '* * * * * $dir/scripts/cron_director.pl > /dev/null 2>&1' >> /tmp/crontab.file;");
 	system("crontab /tmp/crontab.file");
-	system("rm -f /tmp/crontab.file");
+
 }
-
-
-
-
-
-
-
-
 
 
 } else {
@@ -516,5 +523,10 @@ if($crontab eq 'Y'){
 }
 
 
+
+system("rm -f /tmp/mysql.sql");
+system("rm -f /tmp/create_leith.sql");
+system("rm -f /tmp/ps_helper.sql");
+system("rm -f /tmp/crontab.file");
 
 1;

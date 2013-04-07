@@ -214,7 +214,7 @@ class sqlmot {
 			$query="select page_number , chapter, documentation_title , documentation_txt,date_recorded from documentation WHERE documentation_id ='".$_GET['id']."'";
 		break;
 		case "ps_95per";
-                        $query="select query,full_scan,exec_count,err_count,warn_count,total_latency,max_latency,avg_latency,rows_sent,rows_sent_avg,rows_scanned from ps_helper.statements_with_runtimes_in_95th_percentile";
+                        $query="select query,full_scan,exec_count,err_count,warn_count,total_latency,max_latency,avg_latency,rows_sent,rows_sent_avg,rows_scanned from ps_helper.statements_with_runtimes_in_95th_percentile ORDER BY rows_scanned DESC ";
                 break;
 		case "ps_sfts";
                         $query="select query,exec_count,no_index_used_count,no_good_index_used_count,no_index_used_pct from ps_helper.statements_with_full_table_scans ORDER BY exec_count DESC limit 10; ";
@@ -297,6 +297,11 @@ class sqlmot {
 				 if($docs==1){
 					$row["documentation_txt"]=$this->stringreplace("\n",'<br>',$row["documentation_txt"]);
 					$row["documentation_txt"]=$this->stringreplace("\t",'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',$row["documentation_txt"]);
+					$row["documentation_txt"]=$this->stringreplace("[",'<b>',$row["documentation_txt"]);
+        				$row["documentation_txt"]=$this->stringreplace("]",'</b>',$row["documentation_txt"]);
+        				$row["documentation_txt"]=$this->stringreplace("The Tab:",'<i>The Tab:</i>',$row["documentation_txt"]);
+        				$row["documentation_txt"]=$this->stringreplace("The Field:",'<i>The Field:</i>',$row["documentation_txt"]);
+
 		 		}
                         	$json_ar[]=$row;
                         	$tmp_ar[]="['".$row[0]."', '".$row[1]."']";
@@ -313,17 +318,17 @@ class sqlmot {
                         $results_array[]=$row;
                 }
 
-        } elseif($i == 5){
-		$results_array=array();
-                while($row = $result->fetch_array(MYSQLI_NUM) ){
-                        $results_array[]=$row;
-                }
+         } elseif($i == 5){
+ 		$results_array=array();
+                 while($row = $result->fetch_array(MYSQLI_NUM) ){
+                         $results_array[]=$row;
+                 }
 	}
 
         /* close connection */
         $mysqli->close();
 
-        if($i == 4){ return $results_array; } elseif($i == 5){ echo $response;}else{return $row;}
+        if($i == 4){ return $results_array; } elseif($i == 6){ echo $response;}else{return $row;}
         }  /* close query_db */
 
 
@@ -359,9 +364,9 @@ class sqlmot {
 
 	$id=$this->query_db($query,2);
 
-	$query=" INSERT INTO cron_times (  `cron_id`) VALUES ( '$id') ";
-
-        $id=$this->query_db($query,2);
+	# Instead of this I moved it to the crons trigger 
+	#$query=" INSERT INTO cron_times (  `cron_id`) VALUES ( '$id') ";
+        #$id=$this->query_db($query,2);
 
         return $id;
 	}
@@ -580,7 +585,7 @@ class sqlmot {
    	$query="UPDATE ".$table." SET ".$field."='".$db_value."'  WHERE  ".$id_name."_id='$id'   ";
    }
 	# mysql_real_escape_string()
-   $this->query_db($query,5,$value);
+   $this->query_db($query,6,$value);
 
    } /* update_display  */
 
@@ -593,14 +598,14 @@ class sqlmot {
         function current_page(){
 
 		switch($this->page) {
-	    
-		case "crons";
-	                # CRON JOBS 
-	       		require('html_files/crons.html'); 
-	        break;
-		case "cron_details";
-                        # CRON DETAIL
-                        require('html_files/cron_details.html');
+
+		case "API";
+                        #API for jquery Page
+                        $this->jquery_api();
+                break;
+                case "AJAX";
+                        #AJAX UPDATE
+                        $this->update_display();
                 break;
 		case "contacts";
                         # Contacts Overview 
@@ -610,6 +615,14 @@ class sqlmot {
                         # Contact Details 
                         require('html_files/contacts_details.html');
                 break;
+		case "crons";
+                        # CRON JOBS 
+                        require('html_files/crons.html');
+                break;
+                case "cron_details";
+                        # CRON DETAIL
+                        require('html_files/cron_details.html');
+                break;
 		case "dashboard";
 	                #DASHBOARD
 	               	require('html_files/dashboard.html'); 
@@ -617,6 +630,14 @@ class sqlmot {
 		case "dashboard_details";
                         #DASHBOARD DETAILS
                        	require('html_files/dashboard_details.html'); 
+                break;
+		case "database";
+                        # Database Details 
+                        require('html_files/database.html');
+                break;
+		case "docs";
+                        # Documentation Details 
+                        require('html_files/documentation.html');
                 break;
 		case "history";
                         #HISTORY OF ALERTS
@@ -626,19 +647,8 @@ class sqlmot {
                         #HISTORY OF ALERTS
                         require('html_files/schedule.html');
                 break;
-		case "database";
-                        # Database Details 
-                        require('html_files/database.html');
-                break;
 
-		case "API";
-                	#API for jquery Page
-                	$this->jquery_api();
-        	break;
-		case "AJAX";
-                	#AJAX UPDATE
-                	$this->update_display();
-        	break;
+
 		default:
        			require('html_files/dashboard.html');
                 break;
@@ -754,12 +764,12 @@ class sqlmot {
         <LINK REL="stylesheet" HREF="<?php echo $this->location; ?>css/layout.css" TYPE="text/css">
         <LINK REL="stylesheet" HREF="<?php echo $this->location; ?>css/forms.css" TYPE="text/css">
 	<LINK REL="stylesheet" HREF="<?php echo $this->location; ?>css/tab.webfx.css" TYPE="text/css">	
-        <LINK REL="SHORTCUT ICON" HREF="<?php print $this->SITEROOT?>/favicon.ico">
+	<LINK REL="stylesheet" HREF="<?php echo $this->location; ?>css/jquery-ui.css" TYPE="text/css">
 	
 	<script src="./javascript/jquery-1.9.1.js" type="text/javascript"   language="javascript"  ></script>
+	<script src='./javascript/jquery-ui.min.js' type="text/javascript"   language="javascript"  ></script>
 	<script src="./javascript/tabpane.js" type="text/javascript"   language="javascript"  ></script>
 	<script src="./javascript/CalendarPopup.js" type="text/javascript"   language="javascript"  ></script>	
-	<script src='./javascript/jquery-ui.min.js'></script>
 	<script src='./javascript/fullcalendar.min.js'></script>
 
        	<?php
@@ -769,9 +779,11 @@ class sqlmot {
         	<script src="./javascript/scriptaculous/lib/prototype.js" type="text/javascript"></script>
         	<script src="./javascript/scriptaculous/src/scriptaculous.js" type="text/javascript"></script>
         	<script src="./javascript/scriptaculous/src/unittest.js" type="text/javascript"></script>
-        	<script src="./javascript/jquery-ui.js" type="text/javascript"></script>
-
+        	<script src='./javascript/jquery-ui.js' type="text/javascript"   language="javascript"  ></script>
 	<?php 
+	}
+	 if( ($this->page == "dashboard") || ($this->page == "")){
+		echo " <meta http-equiv='refresh' content='900'>";
 	}
 	?> 
 	<SCRIPT LANGUAGE="JavaScript">
@@ -830,6 +842,7 @@ class sqlmot {
                         <div class="bluebutton1"><a href="'.$this->location.'?page=dashboard">DASHBOARD</a></div>
 			<div class="bluebutton1"><a href="'.$this->location.'?page=history">HISTORY</a></div>
 			<div class="bluebutton1"><a href="'.$this->location.'?page=database">DATABASE</a></div>
+			<div class="bluebutton1"><a href="'.$this->location.'?page=docs">DOCS</a></div>
 	';
         }
 

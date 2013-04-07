@@ -135,50 +135,16 @@ FROM events    ";
         return $results_ar;
         }
 
+	function get_documentation_info(){
+        	$query="select documentation_id , chapter *1 as chapter , documentation_title FROM documentation ORDER BY chapter , page_number ASC";
+        	$results_ar=$this->query_db($query,4);
+        return $results_ar;
+        }
 	function get_documentation($id){
 	$query="select page_number , chapter, documentation_title , documentation_txt, date_recorded  from documentation WHERE documentation_id = $id ";
 	$results_ar=$this->query_db($query,4);
 	return $results_ar;
 	}
-
-/*
-# NEED TO UPDATE THE SQL STATEMENTS BELOW WITH OPTIMIZED QUERIES. No SELECT * and etc. 
-	function statements_with_runtimes_in_95th_percentile(){
-        $query=" select * from ps_helper.statements_with_runtimes_in_95th_percentile limit 10   ";
-        $results_ar=$this->query_db($query,5);
-
-        return $results_ar;
-        }
-
-		
-	function statements_with_full_table_scans(){ 
-        $query=" select * from ps_helper.statements_with_runtimes_in_95th_percentile limit 10  ";
-        $results_ar=$this->query_db($query,4);
-
-        return $results_ar;
-        }
-
-	function top_global_consumers_by_avg_latency(){
-        $query=" select * from ps_helper.top_global_consumers_by_avg_latency limit 10 ";
-        $results_ar=$this->query_db($query,4);
-
-        return $results_ar;
-        }	
-	
-	function top_global_consumers_by_total_latency(){
-        $query=" select * from ps_helper.top_global_consumers_by_total_latency limit 10  ";
-        $results_ar=$this->query_db($query,4);
-
-        return $results_ar;
-        }
-
-	function top_io_by_thread(){
-        $query=" select * from ps_helper.top_io_by_thread limit 10 ";
-        $results_ar=$this->query_db($query,4);
-
-        return $results_ar;
-        }
-*/
 
 
 	function format_documentation($id){
@@ -188,6 +154,10 @@ FROM events    ";
 	foreach($results_ar as $d) {
 	
 	$d["documentation_txt"]=$this->stringreplace("\n",'<br>',$d["documentation_txt"]);
+	$d["documentation_txt"]=$this->stringreplace("[",'<b>',$d["documentation_txt"]);
+	$d["documentation_txt"]=$this->stringreplace("]",'</b>',$d["documentation_txt"]);
+	$d["documentation_txt"]=$this->stringreplace("The Tab:",'<i>The Tab:</i>',$d["documentation_txt"]);
+	$d["documentation_txt"]=$this->stringreplace("The Field:",'<i>The Field:</i>',$d["documentation_txt"]);	
 	
 	$result_txt.="
 <div id=tablerow>
