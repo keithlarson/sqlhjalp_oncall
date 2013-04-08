@@ -34,7 +34,7 @@ use WWW::Twilio::API;
 use HTML::Entities;
 sub twilio{
 
-my $to = "+1".$_[0];
+my $to = "+".$_[0];
 my $from = $_[1];
 my $message = $_[2];
 my $SID = $_[3];
