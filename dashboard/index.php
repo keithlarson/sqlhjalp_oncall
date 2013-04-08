@@ -18,28 +18,26 @@
 #                                                                               #
 # Programmer    Keith Larson                                                    #
 # Description   INDEX FILE FOR THE SQLHJALP Monitor                             #
+# https://github.com/keithlarson/sqlhjalp_oncall                                #
 #                                                                               #
 #################################################################################
 
-#if(!$_COOKIE['PHPSESSID']){
-#setcookie("PHPSESSID",session_id()); 
-#}
-#session_start();
-#if (!session_id()){
-      
-#}else{
-##$HTTP_SESSION_VARS['session_id'] = session_id();
-#}
+
+ if (!session_id()){
+	session_start();      
+	setcookie("PHPSESSID",session_id());
+ }
+
 
 require("sqlmot_class.php");
 $sqlmot= new sqlmot();
 
 if( isset($_SESSION['kv']) ){
-#  	echo "  KV: ".$_SESSION['kv']."<hr>";
+#   	echo "  KV: ".$_SESSION['kv']."<hr>";
 }else{
-#	foreach($_POST as $p){ unset($p); }
-#	foreach($_GET as $g){ unset($g); }	
-#	foreach($_REQUEST as $r){ unset($r); }
+ 	foreach($_POST as $p){ unset($p); }
+ 	foreach($_GET as $g){ unset($g); }	
+ 	foreach($_REQUEST as $r){ unset($r); }
         $kv =$sqlmot->key_value();
 	$_SESSION['kv']=$kv[0];
 } 

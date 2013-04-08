@@ -18,7 +18,7 @@
 #                                                                                #
 #  Programmer    Keith Larson                                                    #
 #  Description   CRON JOB DIRECTOR FOR THE SQLHJALP MONITOR			 #
-#  https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor			 #
+#  https://github.com/keithlarson/sqlhjalp_oncall                                #
 #                                                                                #
 #                                                                                # 
 ##################################################################################
@@ -29,7 +29,7 @@ system("clear");
 
 # INTRODUCTION 
 print "Welcome to the UNINSTALL SQLHAJLP.com Monitor script\n
-Code is available at https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor \n 
+Code is available at https://github.com/keithlarson/sqlhjalp_oncall \n 
 This will remove the previous installation. \n
 Do you want to continue? (Y|N): ";
 

@@ -22,7 +22,7 @@ The install.pl script is designed to install via modules. So if you need to rein
 
 To begin: ./install.pl
 
-Documentation is available via txt files in the docs folder, within the dashboard and also available online: https://github.com/keithlarson/sqlhjalp_oncall/ it was previously available here: https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor
+Documentation is available via txt files in the docs folder, within the dashboard and also available online: https://github.com/keithlarson/sqlhjalp_oncall/ 
 
 Screenshots available via the github wiki - https://github.com/keithlarson/sqlhjalp_oncall/wiki/
 

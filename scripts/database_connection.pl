@@ -18,7 +18,7 @@
 #                                                                                #
 #  Programmer    Keith Larson                                                    #
 #  Description   DATABASE CONNECTION FOR THE SQLHJALP MONITOR			 #
-#  https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor			 #
+#  https://github.com/keithlarson/sqlhjalp_oncall                                #
 #                                                                                #
 #                                                                                # 
 ##################################################################################

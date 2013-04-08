@@ -18,7 +18,7 @@
 #                                                                                #
 #  Programmer    Keith Larson                                                    #
 #  Description   CRON JOB DIRECTOR FOR THE SQLHJALP MONITOR			 #
-#  https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor			 #
+#  https://github.com/keithlarson/sqlhjalp_oncall				 #
 #                                                                                #
 #                                                                                # 
 ##################################################################################
@@ -35,7 +35,7 @@ system("clear");
 
 # INTRODUCTION 
 print "
-Code is available from https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor \n
+Code is available from https://github.com/keithlarson/sqlhjalp_oncall \n 
 
 This is a LAMP stack monitoring application. Alterations for web servers other than APACHE on LINUX are up to you.\n
 

@@ -18,6 +18,7 @@
 #                                                                               #
 # Programmer    Keith Larson                                                    #
 # Description   parses our default variables file				#
+# https://github.com/keithlarson/sqlhjalp_oncall                                #
 #                                                                               #
 # This class is broken out into different sections.                             #
 #										# 
