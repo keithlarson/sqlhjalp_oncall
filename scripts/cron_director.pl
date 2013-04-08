@@ -23,15 +23,16 @@
 #                                                                                # 
 ##################################################################################
 # MODULES 
-use Cwd;
+use File::Basename;
 use strict; 
 #use Proc::PID_File;
 # die "Already running!" if Proc::PID::File->running();
 # my $child1 = Proc::PID::File->new(name => "lock.1");
 
 # REQUIREMENTS 
-my $dir = getcwd;
-require "$dir/database_connection.pl" or die $!;
+my ($dir) = $0 =~ m|^(/.+)/scripts/| ? $1 : "./";
+
+require "$dir/scripts/database_connection.pl" or die $!;
 
 
 # DEFINE VARIABLES
@@ -105,17 +106,17 @@ ORDER BY c.cron_type  ");
 		my $cron_type=$crons_ar{$key}{'type'};
 
              	if($cron_type eq "HTTP"){ 
-			 `/usr/bin/perl ./cron_monitor_http.pl $cron_id > /tmp/cron_monitor_http_$cron_id.log & `;
+			 `/usr/bin/perl $dir/scripts/cron_monitor_http.pl $cron_id > /tmp/cron_monitor_http_$cron_id.log & `;
 		} elsif($cron_type eq "HTTPS"){ 
-			`/usr/bin/perl ./cron_monitor_https.pl $cron_id > /tmp/cron_monitor_https_$cron_id.log &`;
+			`/usr/bin/perl $dir/scripts/cron_monitor_https.pl $cron_id > /tmp/cron_monitor_https_$cron_id.log &`;
 		} elsif($cron_type eq "FTP"){
-			`/usr/bin/perl ./cron_monitor_ftp.pl $cron_id > /tmp/cron_monitor_ftp_$cron_id.log &`;
+			`/usr/bin/perl $dir/scripts/cron_monitor_ftp.pl $cron_id > /tmp/cron_monitor_ftp_$cron_id.log &`;
                 } elsif($cron_type eq "SSH"){
-                        `/usr/bin/perl ./cron_monitor_ssh.pl $cron_id > /tmp/cron_monitor_ssh_$cron_id.log &`;
+                        `/usr/bin/perl $dir/scripts/cron_monitor_ssh.pl $cron_id > /tmp/cron_monitor_ssh_$cron_id.log &`;
                 }elsif($cron_type eq "SHELL"){
-                        `/usr/bin/perl ./cron_monitor_shell.pl $cron_id > /tmp/cron_monitor_shell_$cron_id.log &`;
+                        `/usr/bin/perl $dir/scripts/cron_monitor_shell.pl $cron_id > /tmp/cron_monitor_shell_$cron_id.log &`;
                 } elsif($cron_type eq "MYSQL"){
-                        `/usr/bin/perl ./cron_monitor_https.pl $cron_id > /tmp/cron_monitor_https_$cron_id.log &`;
+                        `/usr/bin/perl $dir/scripts/cron_monitor_https.pl $cron_id > /tmp/cron_monitor_https_$cron_id.log &`;
                 }
 
       	#	print " CRON ID :".$cron_id." TYPE- ".$cron_type."\n ";      
@@ -127,8 +128,8 @@ ORDER BY c.cron_type  ");
 # Disconnect the primary db 
 $database_handle->disconnect;
 
-
-system("$dir/scripts/cron_monitor.pl");
+sleep(30);
+`$dir/scripts/cron_monitor.pl`;
 
 
 1;

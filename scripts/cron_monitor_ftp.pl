@@ -26,9 +26,11 @@
 
 use Net::FTP;
 use MIME::Base64;
-use Cwd;
+use File::Basename;
+my ($dir) = $0 =~ m|^(/.+)/scripts/| ? $1 : "./";
+$dir=$dir."/scripts/";
 
-my $dir = getcwd;
+
 
 # REQUIREMENTS 
  require "$dir/database_connection.pl" or die $!;

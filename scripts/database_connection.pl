@@ -26,8 +26,11 @@
 use Data::Dumper;
 use DBI;
 use Cwd;
+use File::Basename;
+my ($dir) = $0 =~ m|^(/.+)/scripts/| ? $1 : "./";
+my $filename = "$dir/config/config.info";
+$dir=$dir."/scripts/";
 
-my $dir = getcwd;
 
 
 sub trim {
@@ -42,8 +45,8 @@ sub trim {
 sub parse_info{
 
    my %data = {};
-   my $filename = "$dir/../config/config.info"; 
- 
+#   my $filename = "$dir/config/config.info"; 
+
    open FILE, "<$filename";
    while(my $line = <FILE>) {
       $line= trim($line);
@@ -73,7 +76,7 @@ sub db{
      	my $source = "DBI:mysql:".$info{SQLMOT_DB_DATABASE}.':'.$info{SQLMOT_HOST};
 	my $user = $info{SQLMOT_DB_USER};
 	my $pass = $info{SQLMOT_DB_PASS};
-#	 print "Values from lookup in constants.txt:source:".$source.",user:".$user.",pass:".$pass."\n";
+ 	# print " \n\nValues from lookup in constants.txt:source:".$source.",user:".$user.",pass:".$pass."\n \n";
       my $dbh = DBI->connect($source, $user, $pass) or die("Could not connect to database\n$!\n".${DBI::strerr});
 
 return $dbh

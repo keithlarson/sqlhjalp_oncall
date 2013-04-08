@@ -140,6 +140,8 @@ if($cpan eq "Y"){
 	print "Installing URI::URL \n \n ";
 	`perl -MCPAN -e 'install URI::URL'`;
 
+	print "Installing File::Basename \n \n ";
+        `perl -MCPAN -e 'install File::Basename'`;
 
 }
  
