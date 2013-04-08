@@ -19,12 +19,12 @@
 ##                                                                                #
 ##  Programmer    Keith Larson                                                    #
 ##  Description   DATABASE CONNECTION FOR THE SQLHJALP MONITOR                    #
-##  https://github.com/keithlarson/sqlhjalp_oncall                                #
+##  https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor                    #
 ##                                                                                #
 ##                                                                                # 
 ###################################################################################
 
-# MORE Information about the Twilio.com service
+# MORE LATER 
 # http://www.perl.com/pub/2011/09/automating-telephony-with-perl-and-twilio.html
 # http://search.cpan.org/~scottw/WWW-Twilio-API-0.17/lib/WWW/Twilio/API.pm 
 # http://search.cpan.org/~scottw/WWW-Twilio-TwiML-1.05/lib/WWW/Twilio/TwiML.pm

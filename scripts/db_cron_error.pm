@@ -19,7 +19,7 @@
 ##                                                                                #
 ##  Programmer    Keith Larson                                                    #
 ##  Description   DATABASE CONNECTION FOR THE SQLHJALP MONITOR                    #
-##  https://github.com/keithlarson/sqlhjalp_oncall                                #
+##  https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor                    #
 ##                                                                                #
 ##                                                                                # 
 ###################################################################################
@@ -31,16 +31,16 @@
 
                 my ($database_handle,$cron_id,$status_id,$response) = @_;
 
-                my $sth_cron_history = $database_handle->prepare("INSERT INTO sqlmot_cron_history (cron_id,status_id) VALUES ($cron_id,$status_id) ");
+                my $sth_cron_history = $database_handle->prepare("INSERT INTO cron_history (cron_id,status_id) VALUES ($cron_id,$status_id) ");
                 $sth_cron_history->execute() or die "database error, sth_cron_history";
 
-                my $sth_cron_dashboard = $database_handle->prepare("REPLACE INTO sqlmot_dashboard (cron_id,cron_status) VALUES ($cron_id,$status_id) ");
+                my $sth_cron_dashboard = $database_handle->prepare("REPLACE INTO dashboard (cron_id,cron_status) VALUES ($cron_id,$status_id) ");
                 $sth_cron_dashboard->execute() or die "database error, sth_cron_dashboard";
 
-                my $sth_cron_failed = $database_handle->prepare("INSERT INTO sqlmot_cron_failed_response (cron_id,response) VALUES ($cron_id, '$response' ) ");
+                my $sth_cron_failed = $database_handle->prepare("INSERT INTO cron_failed_response (cron_id,response) VALUES ($cron_id, '$response' ) ");
                 $sth_cron_failed->execute() or die "database error, sth_cron_failed";
 
-                die($response );
+                die( $response );
         }
 
 

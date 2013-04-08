@@ -19,7 +19,7 @@
 ##                                                                                #
 ##  Programmer    Keith Larson                                                    #
 ##  Description   DATABASE CONNECTION FOR THE SQLHJALP MONITOR                    #
-##  https://github.com/keithlarson/sqlhjalp_oncall                                #
+##  https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor                    #
 ##                                                                                #
 ##                                                                                # 
 ###################################################################################
@@ -34,7 +34,7 @@ my %ca_data = ();
 
 
         my $sth_crons = $database_handle->prepare("SELECT c.cron_id , c.cron_type , c.domain , INET_NTOA(c.ip_address) as  ip_address , c.domain_ip, c.command, c.validate , c.threshold, c.threshold_ratio , c.username , c.password 
-        FROM sqlmot_cron  c
+        FROM cron  c
         WHERE c.cron_type = '".$type."' 
         AND c.cron_id = '$id'
         ORDER BY c.cron_type");

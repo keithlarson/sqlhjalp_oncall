@@ -18,13 +18,13 @@
 #                                                                                #
 #  Programmer    Keith Larson                                                    #
 #  Description   CRON JOB DIRECTOR FOR THE SQLHJALP MONITOR			 #
-#  https://github.com/keithlarson/sqlhjalp_oncall                                #
+#  https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor			 #
 #                                                                                #
 #                                                                                # 
 ##################################################################################
 # MODULES 
 use Cwd;
-
+use strict; 
 #use Proc::PID_File;
 # die "Already running!" if Proc::PID::File->running();
 # my $child1 = Proc::PID::File->new(name => "lock.1");
@@ -39,7 +39,7 @@ require "$dir/database_connection.pl" or die $!;
  
 
 #Gather Cron Bots 
-	my %crons_ar = ();
+	my %crons_ar ={};
 	my $sth_crons = $database_handle->prepare("SELECT c.cron_id , c.cron_type  , 
 
 CASE 
@@ -77,39 +77,52 @@ WHEN date_format(NOW(),'%w') = t.day_of_week THEN 'PASS'
 ELSE 'FAIL' 
 END as day_of_week
 
-FROM sqlmot_cron  c
-INNER JOIN sqlmot_cron_times t ON t.cron_id = c.cron_id 
-LEFT JOIN sqlmot_cron_history h ON h.cron_id = c.cron_id 
+FROM cron  c
+INNER JOIN cron_times t ON t.cron_id = c.cron_id 
+LEFT JOIN cron_history h ON h.cron_id = c.cron_id 
 
-WHERE c.cron_type != 'OFF' AND min = 'PASS' AND hour = 'PASS' AND day_of_month = 'PASS' AND month = 'PASS' AND day_of_week = 'PASS' 
+WHERE c.cron_type != 'OFF' 
+GROUP BY c.cron_id
 ORDER BY c.cron_type  ");
 	$sth_crons->execute() or die "database error, sth_crons";
+
 	while(my $crons = $sth_crons->fetchrow_hashref){	
-		$crons_ar{$crons->{cron_id}} = $crons->{cron_type};
-#  print " cron_id ".$crons->{cron_id}." cron_type ".$crons->{cron_type}." ".$crons->{min}." ".$crons->{hour}." ".$crons->{day_of_month}." ".$crons->{month}." ".$crons->{day_of_week}."  \n ";
+	
+		if( ($crons->{min} eq 'PASS') && ($crons->{hour} eq 'PASS') && ($crons->{day_of_month} eq 'PASS') && ($crons->{month} eq 'PASS') && ($crons->{day_of_week} eq 'PASS')  ){
+			$crons_ar{$crons->{cron_id}}{'id'} = $crons->{cron_id};
+			$crons_ar{$crons->{cron_id}}{'type'} = $crons->{cron_type};
+
+		}
+
 	}
 	$sth_crons->finish;
 
-	my $i =1;
-        foreach my $key (sort (keys(%crons_ar))) {
 
-             	if($crons_ar{$key} eq "HTTP"){ 
- 			exec("/usr/bin/perl ./cron_monitor_http.pl $key &> /tmp/cron_monitor_http_$key.log  ");
-		} elsif($crons_ar{$key} eq "HTTPS"){ 
-                        exec("/usr/bin/perl ./cron_monitor_https.pl $key &> /tmp/cron_monitor_https_$key.log  ");
-		} elsif($crons_ar{$key} eq "FTP"){
-                        exec("/usr/bin/perl ./cron_monitor_ftp.pl $key &> /tmp/cron_monitor_ftp_$key.log  ");
-                } elsif($crons_ar{$key} eq "SSH"){
-                        exec("/usr/bin/perl ./cron_monitor_ssh.pl $key &> /tmp/cron_monitor_ssh_$key.log  ");
-                }elsif($crons_ar{$key} eq "SHELL"){
-                        exec("/usr/bin/perl ./cron_monitor_shell.pl $key &> /tmp/cron_monitor_shell_$key.log  ");
-                } elsif($crons_ar{$key} eq "MYSQL"){
-                        exec("/usr/bin/perl ./cron_monitor_https.pl $key &> /tmp/cron_monitor_https_$key.log  ");
+
+	foreach my $key (sort keys %crons_ar) {
+
+		my $cron_id = $crons_ar{$key}{'id'};
+		my $cron_type=$crons_ar{$key}{'type'};
+
+             	if($cron_type eq "HTTP"){ 
+			 `/usr/bin/perl ./cron_monitor_http.pl $cron_id > /tmp/cron_monitor_http_$cron_id.log & `;
+		} elsif($cron_type eq "HTTPS"){ 
+			`/usr/bin/perl ./cron_monitor_https.pl $cron_id > /tmp/cron_monitor_https_$cron_id.log &`;
+		} elsif($cron_type eq "FTP"){
+			`/usr/bin/perl ./cron_monitor_ftp.pl $cron_id > /tmp/cron_monitor_ftp_$cron_id.log &`;
+                } elsif($cron_type eq "SSH"){
+                        `/usr/bin/perl ./cron_monitor_ssh.pl $cron_id > /tmp/cron_monitor_ssh_$cron_id.log &`;
+                }elsif($cron_type eq "SHELL"){
+                        `/usr/bin/perl ./cron_monitor_shell.pl $cron_id > /tmp/cron_monitor_shell_$cron_id.log &`;
+                } elsif($cron_type eq "MYSQL"){
+                        `/usr/bin/perl ./cron_monitor_https.pl $cron_id > /tmp/cron_monitor_https_$cron_id.log &`;
                 }
 
-      		print " CRON ID :".$key ." TYPE- ".$crons_ar{$key}."\n ";      
-       
+      	#	print " CRON ID :".$cron_id." TYPE- ".$cron_type."\n ";      
+      
         }
+
+
 
 # Disconnect the primary db 
 $database_handle->disconnect;

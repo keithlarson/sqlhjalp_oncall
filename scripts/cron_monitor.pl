@@ -18,7 +18,7 @@
 #                                                                                #
 #  Programmer    Keith Larson                                                    #
 #  Description   CRON JOB DIRECTOR FOR THE SQLHJALP MONITOR			 #
-#  https://github.com/keithlarson/sqlhjalp_oncall                                #
+#  https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor			 #
 #                                                                                #
 #                                                                                # 
 ##################################################################################
@@ -57,21 +57,21 @@ my $dir = getcwd;
 
 	# Gather the active Crons with thresholds
 	my $sth_crons = $database_handle->prepare("SELECT  c.cron_id , c.threshold, c.threshold_ratio
-	FROM sqlmot_cron c
+	FROM cron c
 	WHERE c.cron_type != 'OFF' 
 	AND c.threshold != ''
 	AND c.threshold_ratio != '' 
 	");
 	# Who will we need to contact
 	my $sth_contacts = $database_handle->prepare("SELECT c.contact_id , c.first_name , c.last_name , c.email , c.mobile_phone, c.mobile_domain 
-	FROM sqlmot_events e 
-	INNER JOIN sqlmot_contact c ON c.contact_id = e.contact_id
+	FROM events e 
+	INNER JOIN contact c ON c.contact_id = e.contact_id
 	WHERE NOW() BETWEEN e.start_date and e.end_date
 	AND c.email IS NOT NULL AND  c.mobile_phone IS NOT NULL AND c.mobile_domain IS NOT NULL 
 	ORDER BY e.primary_contact DESC ");
 
 	# Update status so we do not notify more than once for same alert
-	my $sth_acknowledge= $database_handle->prepare("UPDATE sqlmot_cron_failed_response SET acknowledge=1 WHERE cron_id = ? ");
+	my $sth_acknowledge= $database_handle->prepare("UPDATE cron_failed_response SET acknowledge=1 WHERE cron_id = ? ");
 
 	# Loops over or active Crons
 	$sth_crons->execute() or die "database error, sth_crons";
@@ -86,8 +86,8 @@ my $dir = getcwd;
 
 	# Gather Thresehold info per cron 
 	my $sth_notify = $database_handle->prepare("SELECT f.cron_id , c.cron_name, COUNT(f.cron_failed_response_id) as failures , f.response 
-        FROM sqlmot_cron_failed_response f
-	INNER JOIN sqlmot_cron c ON f.cron_id = c.cron_id
+        FROM cron_failed_response f
+	INNER JOIN cron c ON f.cron_id = c.cron_id
         WHERE f.cron_id = $key
 	AND f.acknowledge=0
         AND f.date_recorded >= NOW() - interval ".$crons_ar{$key}{threshold_ratio}." HAVING COUNT(f.cron_failed_response_id)  > ".$crons_ar{$key}{threshold});
