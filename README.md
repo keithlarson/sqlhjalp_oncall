@@ -35,4 +35,4 @@ To begin: ./install.pl
 
 Documentation is available via txt files in the docs folder, within the dashboard and also available online: https://github.com/keithlarson/sqlhjalp_oncall/ it was previously available here: https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor
 
-Screenshots available via the github wiki - https://github.com/keithlarson/sqlhjalp_oncall/wiki/SQLHJALP-On-Call-Monitor
+Screenshots available via the github wiki - https://github.com/keithlarson/sqlhjalp_oncall/wiki/
