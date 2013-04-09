@@ -11,7 +11,7 @@ $pages= new pages();
 
    <div class="tab-page">
       <h2 class="tab">General</h2>
-<h4>MySQL  Variables: </h4>
+
 <div id="information_list">
 
 <?php 
@@ -22,11 +22,69 @@ echo "It appears that the Event Scheduler is OFF. ";
 echo $pages->format_documentation(77); 
 
 } else { 
-$status=$pages->sql_mysql_status();
 
 ?>
 
 <div id=tablecontainer>
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4> MySQL ENGINE </h4>   </div></div>
+                <div id=tableright><div class=column-in><h4> </h4> </div></div>
+        </div>
+
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4> Database Engine </h4>   </div></div>
+		<div id=tableright><div class=column-in><h4> Information Schema Values</h4> </div></div>
+        </div>
+
+<?php
+
+	$engine=$pages->sql_enginestats();
+	foreach($engine as $l){
+	echo "
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>".$l['ENGINE']."</h4>   </div></div>
+                <div id=tableright><div class=column-in> Data Length:  ".$l['datalength']."<br>  Table Count: ".$l['enginecount']."  </div></div>
+        </div>
+        ";	
+	
+	}
+?>
+
+
+        <div id=tablerow>                
+		<div id=tableleft><div class=column-in><br><br> <h4> Evaluations </h4>   </div></div>
+                <div id=tableright><div class=column-in> </div></div>
+        </div>
+
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4> Title</h4>   </div></div>
+                <div id=tableright><div class=column-in><h4> Value </h4> </div></div>
+        </div>
+
+<?php
+	$recs=$pages->get_recomendations();
+        foreach($recs as $l){
+        echo "
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>".$l['title']."</h4>   </div></div>
+                <div id=tableright><div class=column-in> ".$l['value']."</div></div>
+        </div>
+        ";      
+        
+        }
+?>
+
+
+
+
+
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <br><br> <h4> MySQL  Variables  </h4>   </div></div>
+                <div id=tableright><div class=column-in><h4> </h4> </div></div>
+        </div>
+
+
+
         <div id=tablerow>
                 <div id=tableleft><div class=column-in> <h4> Variable name </h4>   </div></div>
                 <div id=tableright><div class=column-in>   <h4> Value </h4> </div></div>
@@ -40,20 +98,16 @@ $status=$pages->sql_mysql_status();
         </div>
 	
 <?php 
-$topvariables=array('Threads_connected','Created_tmp_disk_tables','Created_tmp_table','Created_tmp_file','Handler_read_first','Innodb_buffer_pool_wait_free','Key_reads','Max_used_connections','Open_tables','Select_full_join','Slow_queries','Uptime','Max_used_connections','wait_timeout','Key_buffer_size','Table_cache','Table_open_cache_hits','Handler_read_rnd','Innodb_row_lock_time_avg','Innodb_available_undo_logs','Innodb_buffer_pool_read_requests','Handler_read_rnd','Handler_read_rnd_next');
-
-
-
-	foreach($status as $l){
-
-	if (in_array($l['Variable_name'] , $topvariables)) {	
+	$status=$pages->sql_mysql_status();
+	foreach($status as $key => $value  ){
+	
 	echo "
         <div id=tablerow>
-                <div id=tableleft><div class=column-in> <h4>".$l['Variable_name']."</h4>   </div></div>
-                <div id=tableright><div class=column-in> ".$l['Value']." </div></div>
+                <div id=tableleft><div class=column-in> <h4>".$key."</h4>   </div></div>
+                <div id=tableright><div class=column-in> ".$value." </div></div>
         </div>
 	";
-	}
+
 
 	}	
 

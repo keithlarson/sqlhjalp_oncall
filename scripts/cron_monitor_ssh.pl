@@ -75,7 +75,7 @@ require "$dir/db_cron_update.pm" or die $!;
 	my $ssh = Net::SSH::Perl->new($hostname, debug=>$debug , port => $port );
 	$ssh->login($crons_ar{username},$crons_ar{password});
 	my ($stdout,$stderr,$exit) = $ssh->cmd( $command_a );
-	print $stdout;
+#	print $stdout;
 
 
 
