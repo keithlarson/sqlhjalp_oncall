@@ -56,10 +56,40 @@
 
    </div> <!-- tab-pane-1  -->
 
-   <div class="tab-page" id="tab-pane-2">
+<div class="tab-page" id="tab-pane-2">
+      <h2 class="tab">Notification</h2>
+                <div id="notification_ajax"> AJAX will populate here</div>
+   </div>  <!-- tab-pane-2  -->
+
+
+ <script id="source" language="javascript" type="text/javascript">
+  $(function ()  {
+    $.ajax({
+      url: './index.php',      
+      data: "page=API&jquery=notification",
+      dataType: 'json',
+      success: function(data)      {
+         var html = '<div id=tablecontainer><div id=tablerow><div id=tableleft><div class=column-in><h4>Notify ID</h4></div></div><div id=tablemiddle><div class=column-in><h4>Cron Job</h4></div></div><div id=tablemiddle><div class=column-in><h4>Contact</h4></div></div><div id=tableright><div class=column-in><h4>Status</h4></div></div></div>', ajax_results; 
+ 
+
+        for(var i = 0; i < data.length; i++) {
+          ajax_results = data[i];
+               
+        html += "<div id=tablerow><div id=tableleft><div class=column-in>"+ajax_results.cron_notifications_id+"</div></div><div id=tablemiddle><div class=column-in>["+ajax_results.cron_id+"] "+ajax_results.cron_name+"</div></div><div id=tablemiddle><div class=column-in>"+ajax_results.first_name+" "+ajax_results.last_name+"</div></div><div id=tableright><div class=column-in>"+ajax_results.status+"</div></div></div>"
+
+        }
+        html += "</div> <!-- tablecontainer  -->"
+        $('#notification_ajax').html(html);
+      }
+    });
+  });
+  </script>
+
+
+   <div class="tab-page" id="tab-pane-3">
       <h2 class="tab">Documentation</h2>
 		<div id="documentation_ajax"> AJAX will populate here</div>
-   </div>  <!-- tab-pane-2  -->
+   </div>  <!-- tab-pane-3  -->
 
 </div>  <!-- tab-pane  -->
 <!-- tab pane closed -->

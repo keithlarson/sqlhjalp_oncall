@@ -36,22 +36,21 @@ $parse= new file_parse();
 class sqlmot {
 
  	private $title;
+	private $location;
+        private $js_extra;
+
  	public $db_host;
  	public $db_user;
  	public $db_pass;
  	public $db_database;
-
-	public $db_leith_host;
-        public $db_leith_user;
-        public $db_leith_pass;
-    
-
+	public $leith_on;
+	public $Twilio_SID;    
+	public $Twilio_TOKEN;
+	public $Twilio_PHONE;
 	public $db_key;
 	public $db_iv;
- 	private $location;
-	private $js_extra;
-	public  $page;
-	public  $jquery;
+	public $page;
+	public $jquery;
 
         public function __construct(){ 
 		# $_SESSION['parse']["SQLMOT_HTTPS"]==0
@@ -60,20 +59,22 @@ class sqlmot {
                 }else{ 
                         $this->SITEROOT="http://".$_SERVER["HTTP_HOST"];
                 }
-	
+
+		$this->Twilio_SID=$_SESSION['parse']["ACCOUNTSID"];
+		$this->Twilio_TOKEN=$_SESSION['parse']["AUTHTOKEN"];
+		$this->Twilio_PHONE=$_SESSION['parse']["PHONE"];
+
 		$this->db_host=$_SESSION['parse']["SQLMOT_DB_HOST"];
 		$this->db_user=$_SESSION['parse']["SQLMOT_DB_USER"];
 		$this->db_pass=$_SESSION['parse']["SQLMOT_DB_PASS"];
 		$this->db_database=$_SESSION['parse']["SQLMOT_DB_DATABASE"];
 
-		$this->db_leith_host=$_SESSION['parse']["LEITH_HOST"];
-                $this->db_leith_user=$_SESSION['parse']["LEITH_USER"];
-                $this->db_leith_pass=$_SESSION['parse']["LEITH_PASS"];
+		$this->leith_on=$_SESSION['parse']["LEITH"]; 
              
 
 		$this->db_key=$_SESSION['parse']["SQLMOT_KEY"];
 		$this->db_iv=$_SESSION['parse']["SQLMOT_IV"];
-		$this->location=$this->SITEROOT.$_SESSION['parse']["SQLMOT_LOCATION_HTTP"]."dashboard/";
+		$this->location=$this->SITEROOT.$_SESSION['parse']["SQLMOT_LOCATION_HTTP"];
 		$this->title="SQLHJALP.com SYSTEM MONITOR";
     
 		if($_POST['page']){$_GET['page'] = $_POST['page'];  }
@@ -176,19 +177,19 @@ class sqlmot {
                 break;
 		case "threshold_ratio";
                         $query="SELECT COLUMN_TYPE as type, COLUMN_TYPE as value FROM INFORMATION_SCHEMA.COLUMNS 
-                        WHERE TABLE_SCHEMA = 'sqlhjalp_monitor' 
+                        WHERE TABLE_SCHEMA = '".$this->db_database."' 
                         AND TABLE_NAME = 'cron' 
                         AND COLUMN_NAME = 'threshold_ratio'";
                 break;
 		case "domain_ip";
                         $query="SELECT COLUMN_TYPE as type, COLUMN_TYPE as value FROM INFORMATION_SCHEMA.COLUMNS 
-                        WHERE TABLE_SCHEMA = 'sqlhjalp_monitor' 
+                        WHERE TABLE_SCHEMA = '".$this->db_database."' 
                         AND TABLE_NAME = 'cron' 
                         AND COLUMN_NAME = 'domain_ip'";
                 break;
 		case "mobile_domain";
                         $query="SELECT COLUMN_TYPE as type, COLUMN_TYPE as value FROM INFORMATION_SCHEMA.COLUMNS 
-                        WHERE TABLE_SCHEMA = 'sqlhjalp_monitor' 
+                        WHERE TABLE_SCHEMA = '".$this->db_database."' 
                         AND TABLE_NAME = 'contact' 
                         AND COLUMN_NAME = 'mobile_domain'";
                 break;
@@ -229,6 +230,16 @@ class sqlmot {
 		case "ps_tgtl";
                         $query="select * from ps_helper.top_io_by_thread";
                 break;
+		case "notification";
+			$query="SELECT n.cron_notifications_id , n.cron_id , c.cron_name , ct.first_name, ct.last_name,
+CONCAT('<font color=',s.color,'>',s.status,'</font>') as status
+FROM cron_notifications n
+INNER JOIN cron c ON c.cron_id = n.cron_id
+INNER JOIN contact ct ON ct.contact_id = n.contact_id
+LEFT JOIN status s ON n.status_id = s.status_id
+WHERE n.time_recorded > NOW() - interval 40 DAY";
+		break;
+
 	}
 	
 	# Option 3 will output json array data
@@ -244,12 +255,12 @@ class sqlmot {
 
 	$mysqli = new mysqli($this->db_host,$this->db_user,$this->db_pass,$this->db_database) or die("Connect failed: %s\n ". $mysqli->connect_error  );
 	$docs=0;
-	if (preg_match("/FROM documentation/i",$query)) { $docs=1; }
+ 	if (preg_match("/FROM documentation/i",$query)) { $docs=1; }
 
-	if (preg_match("/ps_helper./i",$query)) {
-		# CHANGE mysqli connection for ps_helper user and information
-		$mysqli = new mysqli($this->db_leith_host,$this->db_leith_user,$this->db_leith_pass,'ps_helper') or die("Connect failed: %s\n ". $mysqli->connect_error  );
-	}
+#	if (preg_match("/ps_helper./i",$query)) {
+#		# CHANGE mysqli connection for ps_helper user and information
+#		$mysqli = new mysqli($this->db_leith_host,$this->db_leith_user,$this->db_leith_pass,'ps_helper') or die("Connect failed: %s\n ". $mysqli->connect_error  );
+#	}
 
         $result = $mysqli->query($query) or die("Query Error $query");
         $_SESSION['last_query']=$query;
@@ -640,6 +651,10 @@ class sqlmot {
                         # Documentation Details 
                         require('html_files/documentation.html');
                 break;
+		case "graph_details";
+                        # Graphs Details 
+                        require('html_files/graph_details.html');
+                break;
 		case "history";
                         #HISTORY OF ALERTS
                       	require('html_files/history.html');	
@@ -754,24 +769,25 @@ class sqlmot {
         function HEADERS() {
          echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         ?>
-        <html xmlns="http://www.w3.org/1999/xhtml">
+	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN""http://www.w3.org/TR/html4/strict.dtd">
+        <!-- <html xmlns="http://www.w3.org/1999/xhtml"> -->
 	<!-- Navigation Graphics Originally created by Micha Hanson www.linkedin.com/in/michahanson/  -->
         <head>
-        <title>TEST <?php echo $this->title; ?></title>
+        <title><?php echo $this->title; ?></title>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-	<link rel='stylesheet' href='<?php echo $this->location; ?>css/cupertino_theme.css' />
-	<link href='<?php echo $this->location; ?>css/fullcalendar.css' rel='stylesheet' />
-	<link href='<?php echo $this->location; ?>css/fullcalendar.print.css' rel='stylesheet' media='print' />
+	<link rel='stylesheet' href='<?php echo $this->location; ?>css/cupertino_theme.css'>
+	<link href='<?php echo $this->location; ?>css/fullcalendar.css' rel='stylesheet'>
+	<link href='<?php echo $this->location; ?>css/fullcalendar.print.css' rel='stylesheet' media='print'>
         <LINK REL="stylesheet" HREF="<?php echo $this->location; ?>css/layout.css" TYPE="text/css">
         <LINK REL="stylesheet" HREF="<?php echo $this->location; ?>css/forms.css" TYPE="text/css">
 	<LINK REL="stylesheet" HREF="<?php echo $this->location; ?>css/tab.webfx.css" TYPE="text/css">	
 	<LINK REL="stylesheet" HREF="<?php echo $this->location; ?>css/jquery-ui.css" TYPE="text/css">
 	
-	<script src="./javascript/jquery-1.9.1.js" type="text/javascript"   language="javascript"  ></script>
-	<script src='./javascript/jquery-ui.min.js' type="text/javascript"   language="javascript"  ></script>
-	<script src="./javascript/tabpane.js" type="text/javascript"   language="javascript"  ></script>
-	<script src="./javascript/CalendarPopup.js" type="text/javascript"   language="javascript"  ></script>	
-	<script src='./javascript/fullcalendar.min.js'></script>
+	<script src="./javascript/jquery-1.9.1.js" type="text/javascript"  ></script>
+	<script src='./javascript/jquery-ui.min.js' type="text/javascript"   ></script>
+	<script src="./javascript/tabpane.js" type="text/javascript"   ></script>
+	<script src="./javascript/CalendarPopup.js" type="text/javascript"   ></script>	
+	<script src='./javascript/fullcalendar.min.js' type="text/javascript" ></script>
 
        	<?php
 	if($this->js_extra=="scriptaculous"){ 
@@ -780,19 +796,19 @@ class sqlmot {
         	<script src="./javascript/scriptaculous/lib/prototype.js" type="text/javascript"></script>
         	<script src="./javascript/scriptaculous/src/scriptaculous.js" type="text/javascript"></script>
         	<script src="./javascript/scriptaculous/src/unittest.js" type="text/javascript"></script>
-        	<script src='./javascript/jquery-ui.js' type="text/javascript"   language="javascript"  ></script>
+        	<script src='./javascript/jquery-ui.js' type="text/javascript"   ></script>
 	<?php 
 	}
 	 if( ($this->page == "dashboard") || ($this->page == "")){
 		echo " <meta http-equiv='refresh' content='900'>";
 	}
 	?> 
-	<SCRIPT LANGUAGE="JavaScript">
+	<SCRIPT type="text/javascript" > 
 	var cal = new CalendarPopup();
 	</SCRIPT>
 
         </head>
-        <body bgcolor=white >
+        <body  >
         <div id="pageintro">
 
        <?php

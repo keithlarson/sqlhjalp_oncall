@@ -45,11 +45,7 @@ class pages extends sqlmot{
                 $this->db_user=$_SESSION['parse']["SQLMOT_DB_USER"];
                 $this->db_pass=$_SESSION['parse']["SQLMOT_DB_PASS"];
                 $this->db_database=$_SESSION['parse']["SQLMOT_DB_DATABASE"];
-
-                $this->db_leith_host=$_SESSION['parse']["LEITH_HOST"];
-                $this->db_leith_user=$_SESSION['parse']["LEITH_USER"];
-                $this->db_leith_pass=$_SESSION['parse']["LEITH_PASS"];
-
+		$this->leith_on=$_SESSION['parse']["LEITH"];
                 $this->db_key=$_SESSION['parse']["SQLMOT_KEY"];
                 $this->db_iv=$_SESSION['parse']["SQLMOT_IV"];
 	}
@@ -64,7 +60,7 @@ class pages extends sqlmot{
         $query="SHOW GLOBAL STATUS";
         $results_ar=$this->query_db($query,4);
 	$v_array=array();
-	$checked_variables=array('Threads_connected','Created_tmp_disk_tables','Created_tmp_table','Created_tmp_file','Handler_read_first','Innodb_buffer_pool_wait_free','Key_reads','Open_tables','Select_full_join','Slow_queries','Uptime','Max_used_connections','wait_timeout','Key_buffer_size','Table_cache','Table_open_cache_hits','Handler_read_rnd','Innodb_row_lock_time_avg','Innodb_available_undo_logs','Innodb_buffer_pool_read_requests','Handler_read_rnd','Handler_read_rnd_next','Slow_queries','Questions');
+	$checked_variables=array('Threads_connected','Created_tmp_disk_tables','Created_tmp_table','Created_tmp_file','Handler_read_first','Innodb_buffer_pool_wait_free','Key_reads','Open_tables','Select_full_join','Slow_queries','Uptime','Max_used_connections','wait_timeout','Key_buffer_size','Table_cache','Table_open_cache_hits','Handler_read_rnd','Innodb_row_lock_time_avg','Innodb_available_undo_logs','Innodb_buffer_pool_read_requests','Handler_read_rnd','Handler_read_rnd_next','Slow_queries','Questions','Qcache_hits','Com_select','Qcache_free_memory','Qcache_lowmem_prunes','Uptime','Select_range_check','Select_full_join');
 
 		foreach($results_ar as $v ){
                         if (in_array($v['Variable_name'] , $checked_variables)) {
@@ -88,7 +84,7 @@ class pages extends sqlmot{
 	$variables=array(0);
 	$variables['vcheck']=0;
 
-	$checked_variables=array('read_buffer_size','read_rnd_buffer_size','sort_buffer_size','thread_stack','join_buffer_size','record_buffer','record_rnd_buffer','sort_buffer','max_connections','tmp_table_size','max_heap_table_size','innodb_buffer_pool_size','innodb_additional_mem_pool_size','innodb_log_buffer_size','query_cache_size','key_buffer_size','auto_increment_increment','auto_increment_offset','innodb_flush_log_at_trx_commit','innodb_force_recovery','innodb_doublewrite','innodb_fast_shutdown','innodb_max_dirty_pages_pct','flush_time','large_pages','locked_in_memory','log_warnings','low_priority_updates','max_binlog_size','max_connect_errors','myisam_repair_threads','old_passwords','optimizer_prune_level','read_buffer_size','read_rnd_buffer_size','relay_log_space_limit','slave_net_timeout','sql_notes','sync_frm','tx_isolation','expire_log_days','innodb_flush_method','innodb_data_file_path','innodb_locks_unsafe_for_binlog','innodb_support_xa','log_bin','log_output','max_relay_log_size','myisam_recover_options','storage_engine','sync_binlog','tmp_table_size','connect_timeout','debug','delay_key_write','flush','flush_time','have_bdb','init_connect','init_file','thread_cache_size','innodb_checksums');
+	$checked_variables=array('read_buffer_size','read_rnd_buffer_size','sort_buffer_size','thread_stack','join_buffer_size','record_buffer','record_rnd_buffer','sort_buffer','max_connections','tmp_table_size','max_heap_table_size','innodb_buffer_pool_size','innodb_additional_mem_pool_size','innodb_log_buffer_size','query_cache_size','query_cache_limit','key_buffer_size','auto_increment_increment','auto_increment_offset','innodb_flush_log_at_trx_commit','innodb_force_recovery','innodb_doublewrite','innodb_fast_shutdown','innodb_max_dirty_pages_pct','flush_time','large_pages','locked_in_memory','log_warnings','low_priority_updates','max_binlog_size','max_connect_errors','myisam_repair_threads','old_passwords','optimizer_prune_level','read_buffer_size','read_rnd_buffer_size','relay_log_space_limit','slave_net_timeout','sql_notes','sync_frm','tx_isolation','expire_log_days','innodb_flush_method','innodb_data_file_path','innodb_locks_unsafe_for_binlog','innodb_support_xa','log_bin','log_output','max_relay_log_size','myisam_recover_options','storage_engine','sync_binlog','tmp_table_size','connect_timeout','debug','delay_key_write','flush','flush_time','have_bdb','init_connect','init_file','thread_cache_size','innodb_checksums');
                 foreach($results_ar as $v ){
                         if (in_array($v['Variable_name'] , $checked_variables)) {
                               	$key=$v['Variable_name'];
@@ -102,8 +98,23 @@ class pages extends sqlmot{
         return $variables;
         }
 
-	function sql_stats(){
-        $query="  ";
+	function sql_connection_history(){
+        $query="SELECT @@max_connections as variable_value2 , variable_value FROM monitor_history WHERE variable_name = 'max_used_connections' AND time_recorded > NOW() - interval 24 HOUR";
+        $results_ar=$this->query_db($query,4);
+        return $results_ar;
+        }
+
+
+	function sql_variable_history($value){
+#        $query="select variable_value from monitor_history WHERE variable_name = '$value' AND time_recorded > NOW() - interval 24 HOUR";
+	$query="SELECT AVG(variable_value) as variable_value , DATE_FORMAT(time_recorded,'%H') as HOUR  , time_recorded
+FROM monitor_history 
+WHERE variable_name = '$value' AND time_recorded > NOW() - interval 24 HOUR 
+GROUP BY HOUR
+ORDER BY  time_recorded DESC
+;";
+
+
         $results_ar=$this->query_db($query,4);
         return $results_ar;
         }
@@ -184,11 +195,12 @@ class pages extends sqlmot{
         return $results_ar;
         }
 
+
+
+
         function sql_innodb_buffer_pool_size(){
 
         $query="SELECT size ,  FORMAT( ( (   @@innodb_buffer_pool_size / 1024 ) / 1024 ) ,0) as actual FROM innodb_buffer_pool_size WHERE time_recorded > CURDATE()";
-
-
         $results_ar=$this->query_db($query,4);
 
         return $results_ar;
@@ -234,11 +246,19 @@ FROM events    ";
         }
 
 	function gb($val){
-
         if($val == 'ON') { return "<font color=green>ON</font>"; } else { return "<font color=red>OFF</font>"; }
-
         }
 
+	function percentage($numerator,$denominator,$warn=0.90){
+		$quotient=( $numerator / $denominator );
+		if ( ($quotient > 1) || ($quotient == 0 ) ){ 
+			return "<font color=red>".sprintf("%.2f%%", ( $quotient  ) * 100)."</font>";
+		}elseif($quotient >= $warn){
+			return "<font color=orange>".sprintf("%.2f%%", ( $quotient  ) * 100)."</font>";
+		}else{
+			return sprintf("%.2f%%", ( $quotient  ) * 100);
+		}
+	}
 
 	function get_recomendations(){
      	$recs_array=array();
@@ -252,12 +272,66 @@ FROM events    ";
 			$per_thread_buffers=$variables['record_buffer'] + $variables['record_rnd_buffer'] + $variables['sort_buffer'] + $variables['thread_stack'] + $variables['join_buffer_size'];	
 		 } 
 		$i=0; 
-		$recs_array[$i]['title']="Max Used Connections";
+		$recs_array[$i]['title']="Max Connections";
 		$recs_array[$i]['value']=$variables['max_connections'];
+
+		$i++;
+                $recs_array[$i]['title']="Max Used Connections";
+                $recs_array[$i]['value']=$status['Max_used_connections'];
+
+		$i++;
+                $recs_array[$i]['title']="% connections used";
+                $recs_array[$i]['value']=$this->percentage($status['Max_used_connections'],$variables['max_connections']);
+
+		$i++;
+                $recs_array[$i]['title']='Innodb Buffer Pool Size';
+                $recs_array[$i]['value']=$this->mb_convert($variables['innodb_buffer_pool_size']);
+
+                $i++;
+                $recs_array[$i]['title']='Innodb Log Buffer Size';
+                if( $variables['key_buffer_size'] >  16777216){
+                	$innodb_log_buffer_size_result="<font color=red> TO High-->".$this->mb_convert($variables['innodb_log_buffer_size'])."</font>";
+                }else{
+                	$innodb_log_buffer_size_result=$this->mb_convert($variables['innodb_log_buffer_size']);
+                }
+                $recs_array[$i]['value']=$innodb_log_buffer_size_result;
+
+		$i++;
+                $recs_array[$i]['title']='Query Cache Size';
+                if( $variables['query_cache_size'] > 134217728){
+                $query_cache_size="<font color=red> TO High-->".$this->mb_convert($variables['query_cache_size'])."</font>";
+                }else{
+                $query_cache_size=$this->mb_convert($variables['query_cache_size']);
+                }
+                $recs_array[$i]['value']=$query_cache_size;
+
+
+                $i++;
+                $recs_array[$i]['title']='Query Cache Efficiency';
+                $query_cache_efficiency = $this->percentage($status['Qcache_hits'],$status['Com_select'] + $status['Qcache_hits']);
+                $recs_array[$i]['value']=$query_cache_efficiency;
+
+		$i++;
+                $recs_array[$i]['title']="% Slow Queries";
+                $recs_array[$i]['value']=$this->percentage($status['Slow_queries'],$status['Questions'],0.15);
+
+		$i++;
+                $recs_array[$i]['title']="# of Joins that need an index";
+		$needs_join=($status['Select_range_check'] + $status['Select_full_join']);
+                $recs_array[$i]['value']=$needs_join;
+
+		$i++;
+                $recs_array[$i]['title']="# of Joins that need an index today";
+                $nj_denominator=( $status['Uptime']/86400  );
+                $recs_array[$i]['value']=( $needs_join / $nj_denominator  ); 
+
+
+
 		$i++;
 		$recs_array[$i]['title']="Total per thread buffer";
-		$total_per_thread_buffers=$per_thread_buffers *$variables['max_connections'];
+		$total_per_thread_buffers=$per_thread_buffers * $variables['max_connections'];
 		$recs_array[$i]['value']= $total_per_thread_buffers;
+
 		$i++;
 		$max_total_per_thread_buffers=$per_thread_buffers *$status['Max_used_connections'];
 		$recs_array[$i]['title']="Max Total Per Thread Buffers";
@@ -270,7 +344,9 @@ FROM events    ";
 		} else {
 			$max_tmp_table_size=$variables['tmp_table_size'];
 		}
-		$recs_array[$i]['value']= $this->gb_convert($max_tmp_table_size);
+                $recs_array[$i]['value']= $this->mb_convert($max_tmp_table_size);
+
+
 		$i++;
                 $recs_array[$i]['title']="Server Buffers";
 		$server_buffers=$variables['key_buffer_size'] + $max_tmp_table_size;
@@ -284,21 +360,17 @@ FROM events    ";
 		$i++;
                 $recs_array[$i]['title']="Max Used Memory";
 		$max_used_memory=$server_buffers + $max_total_per_thread_buffer;
-                $recs_array[$i]['value']= $this->gb_convert($max_used_memory);
+
+                	$recs_array[$i]['value']= $this->mb_convert($max_used_memory);
 
 		$i++;
                 $recs_array[$i]['title']="Total Possible Used Memory";
 		$total_possible_used_memory = $server_buffers + $total_per_thread_buffers;
-                $recs_array[$i]['value']= $this->gb_convert($total_possible_used_memory);
+
+                        $recs_array[$i]['value']= $this->mb_convert($total_possible_used_memory);
 	
-		$i++;
-                $recs_array[$i]['title']="% Slow Queries";
-                $recs_array[$i]['value']= ( $status['Slow_queries'] / $status['Questions']  ) * 100; 
+	
 		
-		$pct_connections_used=( $status['Max_used_connections'] / $variables['max_connections'] ) *100 ;
-		if( $pct_connections_used > 100 ){ $pct_connections_used=100; }
-		$recs_array[$i]['title']="% connections used";
-		$recs_array[$i]['value']=$pct_connections_used;
 
 		if( $variables['auto_increment_increment'] > 1  ){
 		$i++;
@@ -335,14 +407,7 @@ FROM events    ";
                 $recs_array[$i]['title']="Flush time";
                 $recs_array[$i]['value']=$variables['flush_time'];
 		}
-		$i++;
-                $recs_array[$i]['title']='Query Cache Size';
-                if( $variables['query_cache_size'] > 134217728){
-                $query_cache_size="<font color=red> TO High-->".$this->mb_convert($variables['query_cache_size'])."</font>";
-                }else{
-                $query_cache_size=$this->mb_convert($variables['query_cache_size']);
-                }
-                $recs_array[$i]['value']=$query_cache_size;
+
 
 		$i++;
                 $recs_array[$i]['title']='Read Buffer Size';
@@ -416,15 +481,6 @@ FROM events    ";
                 }
                 $recs_array[$i]['value']=$sort_buffer_size;
 
-		$i++;
-                $recs_array[$i]['title']='Innodb Log Buffer Size';
-                if( $variables['key_buffer_size'] >  16777216){
-                $innodb_log_buffer_size_result="<font color=red> TO High-->".$this->mb_convert($variables['innodb_log_buffer_size'])."</font>";
-                }else{
-                $innodb_log_buffer_size_result=$this->mb_convert($variables['innodb_log_buffer_size']);
-
-                }
-                $recs_array[$i]['value']=$innodb_log_buffer_size_result;
 
 
 		$i++;
@@ -526,6 +582,88 @@ FROM events    ";
 	$ydata2=implode("|",$A_ar);
 	echo "<img src=\"./graphs.php?ydata=".$ydata."&title=".$title."&sub_title=".$subtitle."&x_axis=".$x_axis."&y_axis=".$y_axis."&ydata2=".$ydata2."&linetitle1=$linetitle1&linetitle2=$linetitle2 \"> ";
 	}
+
+	function graph_connection_history(){
+	$L=$this->sql_connection_history();
+	$L_ar=array();
+        $A_ar=array();
+        $title="Connections History Last 24 Hours";
+        $subtitle="Trend of Used connections ";
+        $x_axis="Hours";
+        $y_axis="";
+        $linetitle1="Max Connections ";
+        $linetitle2="Used";
+	$trip=0;
+        if( sizeof($L) == 0  ){
+                $L_ar[]=0;
+                $L_ar[]=0;
+                $subtitle="CURRENT RESULTS HAVE NULL RESULTS. Check Events Status";
+        } else {
+                if( sizeof($L) == 1 ){ $L_ar[]=0;  }
+                foreach($L as $l){
+			if($trip==0){ $L_ar[]=$l['max']+1; $trip=1; } else { $L_ar[]=$l['max']; }
+                        $A_ar[]=$l['used'];
+                }
+        }
+        $ydata=implode("|",$L_ar);
+        $ydata2=implode("|",$A_ar);
+        echo "<img src=\"./graphs.php?ydata=".$ydata."&title=".$title."&sub_title=".$subtitle."&x_axis=".$x_axis."&y_axis=".$y_axis."&ydata2=".$ydata2."&linetitle1=$linetitle1&linetitle2=$linetitle2 \"> ";
+	}
+
+
+
+	function graph_variable_history($value,$x_axis,$y_axis,$linetitle1,$size=0){
+	if($value=="MAX_USED_CONNECTIONS"){
+		$L=$this->sql_connection_history();
+		$linetitle2="Max";
+	} else{
+        	$L=$this->sql_variable_history($value);
+	}
+        $L_ar=array();
+	$A_ar=array();
+	$HOURS=array();
+	$hour = array();
+        $title=" $value History";
+        $subtitle="Trend for Last 24 Hours Only";
+        $trip=0;
+        if( sizeof($L) == 0  ){
+                $L_ar[]=0;
+                $L_ar[]=0;
+		$HOURS[]=0;
+                $subtitle="CURRENT RESULTS HAVE NULL RESULTS. Check Events Status";
+        } else {
+                if( sizeof($L) == 1 ){ $L_ar[]=0;  }
+                foreach($L as $l){
+      			$L_ar[]=$L_ar[]=$l['variable_value']-1; 
+			if($trip==0){
+				if($l['variable_value'] > 0) {$L_ar[]=$l['variable_value']+1; $trip=1; }  ;
+				if($l['variable_value2'] > 0) {$A_ar[]=$l['variable_value2']+1; $trip=1; };
+				
+			} else {
+				$L_ar[]=$l['variable_value'];
+				$A_ar[]=$l['variable_value2'];
+
+			}
+			if($l['HOUR']){
+				$HOURS[]=$l['HOUR'];
+			}
+                }
+        }
+
+        $ydata=implode("|",$L_ar);
+	$ydata2=implode("|",$A_ar);
+	$hours_data=implode("|",$HOURS);
+
+	if($size==1){
+		$size_adjusted="&width=550&height=450";
+	}
+	$pass_line2="&ydata2=".$ydata2."&linetitle2=$linetitle2";
+	$passtitles="&title=".$title."&sub_title=".$subtitle."&x_axis=".$x_axis."&y_axis=".$y_axis."&linetitle1=$linetitle1";
+	$pass_ydata2="&ydata2=".$ydata2;
+	$hours_data="&HOURS=".$hours_data;
+        echo "<a href=\"./index.php?page=graph_details&VNAME=".$value."&VXT=".$x_axis."&VYT=".$y_axis."&VLT=".$linetitle1."\"><img src=\"./graphs.php?ydata=".$ydata.$pass_ydata2.$passtitles.$size_adjusted.$pass_line2.$hours_data." \"></a>";
+        }
+
 
 } # EOF
 ?> 

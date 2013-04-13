@@ -31,6 +31,10 @@ $graph->SetMargin(70,20,20,60);
 $graph->title->Set($_GET['title']);
 $graph->subtitle->Set($_GET['sub_title']);
 $graph->xaxis->title->Set($_GET['x_axis']);
+if($_GET['HOURS']){
+$hours = explode('|', $_GET['HOURS']);
+$graph->xaxis->SetTickLabels($hours);
+}
 $graph->yaxis->title->Set($_GET['y_axis']);
 
 

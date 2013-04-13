@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.6.10, for Linux (i686)
 --
--- Host: localhost    Database: sqlhjalp_monitor
+-- Host: localhost    Database: sqlhjalp_oncall
 -- ------------------------------------------------------
 -- Server version	5.6.10-log
 
@@ -167,7 +167,7 @@ CREATE TABLE `dashboard` (
   `date_recorded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`dashboard_id`),
   UNIQUE KEY `Cid` (`cron_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -271,7 +271,7 @@ CREATE TABLE `status` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping events for database 'sqlhjalp_monitor'
+-- Dumping events for database 'sqlhjalp_oncall'
 --
 /*!50106 SET @save_time_zone= @@TIME_ZONE */ ;
 /*!50106 DROP EVENT IF EXISTS `innodb_buffer_pool_size` */;
@@ -359,7 +359,7 @@ DELIMITER ;
 /*!50106 SET TIME_ZONE= @save_time_zone */ ;
 
 --
--- Dumping routines for database 'sqlhjalp_monitor'
+-- Dumping routines for database 'sqlhjalp_oncall'
 --
 /*!50003 DROP PROCEDURE IF EXISTS `connection_history` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -618,7 +618,7 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`keith`@`localhost` PROCEDURE `innodb_buffer_pool_size`()
 BEGIN
-INSERT INTO  innodb_buffer_pool_size (size)
+INSERT INTO innodb_buffer_pool_size (size)
 SELECT CONCAT(ROUND(KBS/POWER(1024, 
 IF(PowerOf1024<0,0,IF(PowerOf1024>3,0,PowerOf1024)))+0.49999), 
 SUBSTR(' KMG',IF(PowerOf1024<0,0, 
@@ -654,7 +654,7 @@ SET @ByteWrittenToLog = @num2 - @num1;
 SET @KB_WL_HR = @ByteWrittenToLog / POWER(1024,1) * 3600 / @TimeInterval;
 SET @MB_WL_HR = @ByteWrittenToLog / POWER(1024,2) * 3600 / @TimeInterval;
 SET @GB_WL_HR = @ByteWrittenToLog / POWER(1024,3) * 3600 / @TimeInterval;
-INSERT INTO  innodb_log_file_size SELECT NULL, @KB_WL_HR,@MB_WL_HR,@GB_WL_HR, NOW() ;
+INSERT INTO innodb_log_file_size SELECT NULL, @KB_WL_HR,@MB_WL_HR,@GB_WL_HR, NOW() ;
 
      END ;;
 DELIMITER ;
@@ -972,4 +972,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-04-13 19:43:23
+-- Dump completed on 2013-04-13 19:42:45

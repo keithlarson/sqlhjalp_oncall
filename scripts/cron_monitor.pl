@@ -50,12 +50,10 @@ $dir=$dir."/scripts/";
 	my %notify_array = ();
 	my $notify=0; 
 	my $message_info;
-	my $voice_message;
-	my $txt_info="CRON IDS that FAILED ";
 	my $to;
-	my $body;
+	
 	my $subject = "SQLHJALP Monitor Alert";
-	my $debug=1;
+	my $debug=0;
 
 	# Gather the active Crons with thresholds
 	my $sth_crons = $database_handle->prepare("SELECT  c.cron_id , c.threshold, c.threshold_ratio
@@ -72,14 +70,16 @@ $dir=$dir."/scripts/";
 	AND c.email IS NOT NULL AND  c.mobile_phone IS NOT NULL AND c.mobile_domain IS NOT NULL 
 	ORDER BY e.primary_contact DESC ");
 
-	# Update status so we do not notify more than once for same alert
-	my $sth_acknowledge= $database_handle->prepare("UPDATE cron_failed_response SET acknowledge=1 WHERE cron_id = ? ");
+
+	#Build out the notification history
+	my $sth_notifications= $database_handle->prepare("INSERT INTO cron_notifications VALUES (NULL,?,?,?,?,NOW())   ");
 
 	# Loops over or active Crons
 	$sth_crons->execute() or die "database error, sth_crons";
 	while(my $crons = $sth_crons->fetchrow_hashref){	
 		$crons_ar{$crons->{cron_id}}{threshold} = $crons->{threshold};
 		$crons_ar{$crons->{cron_id}}{threshold_ratio} = $crons->{threshold_ratio};
+		if($debug >0){ print " Cron ID: ".$crons->{cron_id}."  threshold ".$crons->{threshold}."  -> ".$crons->{threshold_ratio}."  \n  "; }
 	}
 	$sth_crons->finish;
 
@@ -87,7 +87,7 @@ $dir=$dir."/scripts/";
         foreach my $key (sort (keys(%crons_ar))) {
 
 	# Gather Thresehold info per cron 
-	my $sth_notify = $database_handle->prepare("SELECT f.cron_id , c.cron_name, COUNT(f.cron_failed_response_id) as failures , f.response 
+	my $sth_notify = $database_handle->prepare("SELECT f.cron_id , c.cron_name, COUNT(f.cron_failed_response_id) as failures , f.response,f.cron_failed_response_id  
         FROM cron_failed_response f
 	INNER JOIN cron c ON f.cron_id = c.cron_id
         WHERE f.cron_id = $key
@@ -95,40 +95,52 @@ $dir=$dir."/scripts/";
         AND f.date_recorded >= NOW() - interval ".$crons_ar{$key}{threshold_ratio}." HAVING COUNT(f.cron_failed_response_id)  > ".$crons_ar{$key}{threshold});
  	 $sth_notify->execute()or die "database error, sth_notify";
 
+	 my $i=0;
          while(my $n = $sth_notify->fetchrow_hashref){
-		$notify=1;
-		$message_info.="Cron [".$n->{cron_id}."] ".$n->{cron_name}." Failed and currently has ".$n->{failures}." \n Last Known Response was ".$n->{response}." \n\n " ;
-	   	$txt_info.=$n->{cron_id}." ";			
-		my $name_clean=$n->{cron_name};
-		$name_clean =~ s/ /+/g;
-		$voice_message.="Cron+id+".$n->{cron_id}."+".$name_clean."+Failed+";
-		$notify_array{$crons->{cron_id}};
+		if($debug >0){ print" NTA id ".$n->{cron_id}." ".$n->{cron_name}." ".$n->{cron_failed_response_id}." \n";   }
+		$notify_array{$i}{'cron_id'} = $n->{cron_id};
+		$notify_array{$i}{'cron_name'} = $n->{cron_name};
+		$notify_array{$i}{'failures'} = $n->{failures};
+		$notify_array{$i}{'response'} = $n->{response};
+		$notify_array{$i}{'cron_failed_response_id'} = $n->{cron_failed_response_id};
+		$i=$i+1;
          }
          $sth_notify->finish;
         } # For Each End of Loop
 
-
-	# We need to contact others now Via email , txt and phone call
-	if($notify == 1){
-		$body = "The SQLHJALP Monitor has detected failures for the following cron jobs that you set up.\n $message_info \n\n ";
-	
+		# We need to contact others now Via email , txt and phone call if $notify_array was populated
 		$sth_contacts->execute() or die "database error, sth_contacts";
 		while(my $contact = $sth_contacts->fetchrow_hashref){        
+			$to=$contact->{first_name}." ".$contact->{last_name}. "<".$contact->{email}.">";
+			if($debug >0){  print "inside contacts $to \n ";}
+			foreach my $key (sort (keys(%notify_array))) {
+			my $info_passed="CTID000".$contact->{contact_id}."000000CI000".$notify_array{$key}{'cron_id'}."000000CFRI000".$notify_array{$key}{'cron_failed_response_id'};
+my $xml_message="
+<Response>
+  <Gather method=\"GET\" action=\"http://oncalldemo.sqlhjalp.com/twilio/?cni=".$info_passed."\" numDigits=\"1\">
+     <Say>Hello ".$contact->{first_name}." we appear to have an alert that needs your attention. </Say>
+     <Say>I will email and txt you additional information but for your reference here is what we know</Say>
+     <Say>Cron ".$notify_array{$key}{'cron_name'}." ID ".$notify_array{$key}{'cron_id'}." Failed ".$notify_array{$key}{'failures'}." times with a ".$notify_array{$key}{'response'}." response. </Say>
+     <Say>Press 1 to confirm alert</Say>
+     <Say>Press 2 to say you are unavailable</Say>
+  </Gather>
+</Response>";
 
-              		$to=$contact->{first_name}." ".$contact->{last_name}. "<".$contact->{email}.">"; 
-			&send_mail($to, $subject, $body,$user,$pass,$smtp_server,465);			
-			  
-			$message_info =~ s/ /+/g;
- 			&twilio($contact->{mobile_phone},$from_phone,$txt_info,$SID ,$token,$voice_message );
+				my $txt_message="Cron ".$notify_array{$key}{'cron_name'}." ID ".$notify_array{$key}{'cron_id'}." Failed";				
+				my $email_message="Cron ".$notify_array{$key}{'cron_name'}." ID ".$notify_array{$key}{'cron_id'}." Failed ".$notify_array{$key}{'failures'}." times with a ".$notify_array{$key}{'response'}." response.";
+				if($debug >0){ print " \n\n $xml_message \n\n ";  }
+
+             
+ 				&send_mail($to, $subject,$email_message,$user,$pass,$smtp_server,465);			
+ 				&twilio($contact->{mobile_phone},$from_phone,$txt_info,$SID ,$token,$xml_message);
+				$sth_notifications->execute($notify_array{$key}{'cron_id'},$notify_array{$key}{'cron_failed_response_id'},$contact->{contact_id},3) or die "database error, sth_notifications";
+			}
+			
+
         	}
         	$sth_contacts->finish;
 
 
-		foreach my $key (sort (keys(%crons_ar))) {
-			$sth_acknowledge->execute($key)  or die "database error, sth_acknowledge";
-		}
-
-	}
 
 # Disconnect the primary db 
 $database_handle->disconnect;

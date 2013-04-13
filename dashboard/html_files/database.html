@@ -4,6 +4,7 @@ require("./sqlmot_pages_class.php");
 
 $pages= new pages();
 
+
 ?>
 <div id="header_title_page"><h4>SQLHJALP.com On-call Monitor DATABASE DETAILS</h4></div>
 
@@ -132,29 +133,42 @@ echo $pages->format_documentation(77);
 
 	<div id=tablerow>
                 <div id=tableleft><div class=column-in> </div></div> 
-		<div id=tablemiddle><div class=column-in> <h4>Innodb Log File Size </h4> MB Work Load By Hour  </div></div>
-                <div id=tablemiddle><div class=column-in> <h4>Innodb Buffer Pool Size</h4> Size in MB   </div></div>	
+		<div id=tablemiddle><div class=column-in> <?php  $pages->graph_variable_history('CREATED_TMP_DISK_TABLES','Hours','','CREATED TMP DISK TABLES');  ?>  </div></div>
+                <div id=tablemiddle><div class=column-in> <?php  $pages->graph_variable_history('OPEN_TABLES','Hours','','OPEN TABLES');  ?> </div></div>	
 		<div id=tableright><div class=column-in> </div></div> 
 	</div>
 
 	<div id=tablerow>
                 <div id=tableleft><div class=column-in> </div></div>
-		<div id=tablemiddle><div class=column-in> <?php  $pages->graphs_innodb_log_file_size();  ?>  </div></div>
-                <div id=tablemiddle><div class=column-in> <?php  $pages->graphs_innodb_buffer_pool_size();  ?>  </div></div>
+		<div id=tablemiddle><div class=column-in> <?php  $pages->graph_variable_history('SLOW_QUERIES','Hours','','Slow Queries');  ?>  </div></div>
+                <div id=tablemiddle><div class=column-in> <?php  $pages->graph_variable_history('MAX_USED_CONNECTIONS','Hours','','Max Used Connections');  ?>  </div></div>
 		<div id=tableright><div class=column-in> </div></div>
         </div>
 
 
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> </div></div>
+                <div id=tablemiddle><div class=column-in> <?php  $pages->graph_variable_history('HANDLER_READ_FIRST','Hours','','HANDLER READ FIRST');  ?>  </div></div>
+                <div id=tablemiddle><div class=column-in> <?php  $pages->graph_variable_history('KEY_READS','Hours','','KEY READS');  ?> </div></div>
+                <div id=tableright><div class=column-in> </div></div>
+        </div>
+
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> </div></div>
+                <div id=tablemiddle><div class=column-in> <?php  $pages->graph_variable_history('SELECT_FULL_JOIN','Hours','','SELECT FULL JOIN');  ?>  </div></div>
+                <div id=tablemiddle><div class=column-in> <?php  $pages->graph_variable_history('Threads_connected','Hours','','Threads connected');  ?> </div></div>
+                <div id=tableright><div class=column-in> </div></div>
+        </div>
 
 </div> <!-- tablecontainer  -->
 
+ </div> <!-- "tab-pane" id="tab-pane-2   -->
 
 
-   </div>
-
+<?php if($pages->leith_on==1){  ?>
    <div class="tab-page" id="tab-pane-3">
       <h2 class="tab">Mark Leith's pshelper</h2>
-	<div class="tab-pane" id="tab-pane-2">
+	<div class="tab-pane" id="tab-pane-3">
 	<div class="tab-page" id="tab-pane-3a">
       		<h2 class="tab">Top Global Consumers by Total Latency </h2>
 	<div id="ps_tgctl"> AJAX will populate when data available</div>
@@ -180,10 +194,12 @@ echo $pages->format_documentation(77);
                 <div id="psdocumentation_ajax"> AJAX will populate here</div>
 	</div>
 
-	</div> <!-- "tab-pane" id="tab-pane-2   -->
-   </div>
+	</div> <!-- "tab-pane" id="tab-pane-3   -->
+   </div> <!-- class="tab-page" id="tab-pane-3   -->
 
-
+<?php
+}
+?>
   <script id="source" language="javascript" type="text/javascript">
   $(function ()  {
     $.ajax({

@@ -7,24 +7,24 @@
 
 <div id="page_list">
 <div id=tablecontainer>
-        <div id=tablerow>
-                <div id=tableleft><div class=column-in> <h4>CRON ID</h4> </div></div>
-                <div id=tablemiddle><div class=column-in><h4>Name</h4></div></div>
-		<div id=tablemiddle><div class=column-in><h4>Status</h4></div></div>
-		<div id=tablemiddle><div class=column-in><h4>Threshold</h4></div></div>
-		<div id=tablemiddle><div class=column-in><h4>Last Ran</h4></div></div>
-		<div id=tableright><div class=column-in><h4>Response</h4></div></div>
+        <div id=tablerow_header>
+                <div id=tableleft_cronid><div class=column-in><h4>CRON ID</h4></div></div>
+                <div id=tablemiddle_name><div class=column-in><h4>Name</h4></div></div>
+		<div id=tablemiddle_status><div class=column-in><h4>Status</h4></div></div>
+		<div id=tablemiddle_threshold><div class=column-in><h4>Threshold</h4></div></div>
+		<div id=tablemiddle_lastran><div class=column-in><h4>Last Ran</h4></div></div>
+		<div id=tableright_response><div class=column-in><h4>Response</h4></div></div>
 
         </div>
 
-        <div id=tablerow>
+        <div id=tablerow_data>
                 
-                <div id=tableleft><div class=column-in> <h4></h4> </div></div>
-                <div id=tablemiddle><div class=column-in><h4></h4></div></div>
-                <div id=tablemiddle><div class=column-in>No Dashboard Data Available<h4></h4></div></div>
-                <div id=tablemiddle><div class=column-in><h4></h4></div></div>
-                <div id=tablemiddle><div class=column-in><h4></h4></div></div>
-                <div id=tableright><div class=column-in><h4></h4></div></div>
+                <div id=tableleft_col1><div class=column-in> <h4></h4> </div></div>
+                <div id=tablemiddle_col2><div class=column-in><h4></h4></div></div>
+                <div id=tablemiddle_col3><div class=column-in>No Dashboard Data Available<h4></h4></div></div>
+                <div id=tablemiddle_col4><div class=column-in><h4></h4></div></div>
+                <div id=tablemiddle_col5><div class=column-in><h4></h4></div></div>
+                <div id=tableright_col6><div class=column-in><h4></h4></div></div>
 
  
 
@@ -35,7 +35,7 @@
 <div class=cleaner>&nbsp;</div>
 
   <!-- Page List AJAX  -->
-  <script id="source" language="javascript" type="text/javascript">
+  <script type="text/javascript">
   $(function ()
   {
     $.ajax({
@@ -44,7 +44,7 @@
       dataType: 'json',
       success: function(data)
       {
-       	  var html = '<div id=tablecontainer><div id=tablerow><div id=tableleft><div class=column-in> <h4>CRON ID</h4> </div></div><div id=tablemiddle><div class=column-in><h4>Name</h4></div></div><div id=tablemiddle><div class=column-in><h4>Status</h4></div></div><div id=tablemiddle><div class=column-in><h4>Threshold</h4></div></div><div id=tablemiddle><div class=column-in><h4>Last Ran</h4></div></div><div id=tableright><div class=column-in><h4>Response</h4></div></div></div>', ajax_results;
+       	  var html = '<div id=tablecontainer><div id=tablerow><div id=tableleft><div class=column-in><h4>CRON ID</h4></div></div><div id=tablemiddle><div class=column-in><h4>Name</h4></div></div><div id=tablemiddle><div class=column-in><h4>Status</h4></div></div><div id=tablemiddle><div class=column-in><h4>Threshold</h4></div></div><div id=tablemiddle><div class=column-in><h4>Last Ran</h4></div></div><div id=tableright><div class=column-in><h4>Response</h4></div></div></div>', ajax_results;
  
         for(var i = 0; i < data.length; i++) {
           ajax_results = data[i];

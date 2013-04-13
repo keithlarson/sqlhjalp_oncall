@@ -1,0 +1,33 @@
+<?php
+
+require("./sqlmot_pages_class.php");
+
+$pages= new pages();
+
+
+?>
+<div id="header_title_page"><h4>SQLHJALP.com On-call Monitor GRAPH DETAILS</h4></div>
+
+
+   <div class="tab-page" id="tab-pane-1" >
+      <h2 class="tab">Graphs</h2>
+<div id=tablecontainer>
+
+	<div id=tablerow>
+                <div id=tableleft><div class=column-in> </div></div> 
+		<div id=tablemiddle><div class=column-in> <?php  $pages->graph_variable_history($_GET['VNAME'],$_GET['VXT'],$_GET['VYT'],$_GET['VLT'],1);  ?>  </div></div>
+		<div id=tableright><div class=column-in> </div></div>
+	</div>
+
+</div> <!-- tablecontainer  -->
+
+	
+</div> <!-- "tab-pane" id="tab-pane-1   -->
+    
+
+
+
+<script type="text/javascript">
+setupAllTabs();
+</script>
+

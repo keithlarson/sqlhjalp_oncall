@@ -1,5 +1,4 @@
-<?php
-#die("COMING SOON");
+<?
 #################################################################################
 #                                                                               #
 # Copyright (c) 2013, SQLHJALP.com All rights reserved.                         #
@@ -18,70 +17,64 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA      #
 #                                                                               #
 # Programmer    Keith Larson                                                    #
-# Description   INDEX FILE FOR THE SQLHJALP Monitor                             #
+# Description   parses our default variables file				#
 # https://github.com/keithlarson/sqlhjalp_oncall                                #
 #                                                                               #
+# This class is broken out into different sections.                             #
+#										# 
 #################################################################################
 
+if(!class_exists('file_parse')){
+   class file_parse{
 
- if (!session_id()){
-	session_start();      
-	setcookie("PHPSESSID",session_id());
- }
+      	private $parsed;
+	private $debug=0; # 1 is debug 0 is off
+  	public $parse_ar=array(); 
 
+      #################################################### 
+      # Automatically look up the ../config/config.info file and builds the variables from it Otherwise passed info can set parse info
+      #################################################### 
+      public function __construct($file=false){
 
-require("sqlmot_class.php");
-$sqlmot= new sqlmot();
+         if ($file) $filename = $file;
+         elseif (defined('PARSE_PATH')) $filename = PARSE_PATH;
+         else $filename = substr('_FILE_',0,strpos('_FILE_','config/')).'../config/config.info';
 
-if( isset($_SESSION['kv']) ){
-#   	echo "  KV: ".$_SESSION['kv']."<hr>";
-}else{
- 	foreach($_POST as $p){ unset($p); }
- 	foreach($_GET as $g){ unset($g); }	
- 	foreach($_REQUEST as $r){ unset($r); }
-        $kv =$sqlmot->key_value();
-	$_SESSION['kv']=$kv[0];
-} 
+         $this->parsed = file($filename);
 
+         if(is_array($this->parsed)){
+	  
+            foreach($this->parsed as $prse){
+		# Skip Comments
+               	if(preg_match('/^#/',$prse)) continue;
 
-if($_POST){
+               	$E = explode("===",$prse);
+               	if(count($E)<2) continue;
 
-switch($_POST['posted']) {
-	case "cronnew";
-		unset($_SESSION['lastnewcronid']);
-		$_SESSION['lastnewcronid']=$sqlmot->add_new_cron($_POST['newcron']);
-	break;
-	case "newcontact";
-                unset($_SESSION['lastnewcontactid']);
-                $_SESSION['lastnewcontactid']=$sqlmot->add_new_contact($_POST['newcontactemail']);
-        break;
-	case "newevent";
+		# Skip Comments
+                if(preg_match('/^#/',$E[0]) ) continue;
+		if(preg_match('/^#/',$E[1]) ) continue;
 
-                unset($_SESSION['lastneweventid']);
-		$record=array();	
-		$record['id']=$_POST['newuser'];
-		$record['start_date']=$_POST['start_date'];
-		$record['end_date']=$_POST['end_date'];
-		$record['primary']=$_POST['primary'];
-                $_SESSION['lastneweventid']=$sqlmot->add_new_event($record);
-        break;
-} 
-	# var_dump($_POST);
-}
+               	$value = trim($E[1]);
+               	$name = trim($E[0]);
+          	
+		# SET VARIABLE FOR RETURN 
+		$this->parse_ar[$name]=$value;
+		$_SESSION['parse'][$name]=$value;
 
+		# DEBUG
+                if($this->debug==1){ echo "<br>name: $name = value: $value ";  }
+             
+               	
+            } # end of foreach
 
+         } # end of is_array
+	 return $this->parse_ar;
 
-if( ($_GET[page]!="API") && ($_GET[page]!="AJAX")  ){
-	$sqlmot->HEADERS();
-}
-if($_GET[jquery]){$sqlmot->jquery=$_GET[jquery] ;}
+      } # end of public function
 
-$sqlmot->current_page();
-
-
-if( ($_GET[page]!="API") && ($_GET[page]!="AJAX")  ){
-	$sqlmot->FOOTERS();
-}
+   } # end of class file_parse
+} # end of if(!class_exists 
 
 
 

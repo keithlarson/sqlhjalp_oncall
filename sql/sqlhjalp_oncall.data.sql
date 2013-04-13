@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.6.10, for Linux (i686)
 --
--- Host: localhost    Database: sqlhjalp_monitor
+-- Host: localhost    Database: sqlhjalp_oncall
 -- ------------------------------------------------------
 -- Server version	5.6.10-log
 
@@ -16,6 +16,21 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `status`
+--
+
+DROP TABLE IF EXISTS `status`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `status` (
+  `status_id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` varchar(25) DEFAULT NULL,
+  `color` varchar(25) DEFAULT NULL,
+  PRIMARY KEY (`status_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `status`
 --
 
@@ -24,6 +39,24 @@ LOCK TABLES `status` WRITE;
 INSERT INTO `status` VALUES (1,'PASS','green'),(2,'FAILED','red'),(3,'CAUTION','yellow');
 /*!40000 ALTER TABLE `status` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `documentation`
+--
+
+DROP TABLE IF EXISTS `documentation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `documentation` (
+  `documentation_id` int(11) NOT NULL AUTO_INCREMENT,
+  `page_number` decimal(3,2) NOT NULL DEFAULT '0.00',
+  `chapter` int(11) NOT NULL DEFAULT '0',
+  `documentation_title` varchar(255) DEFAULT NULL,
+  `documentation_txt` text,
+  `date_recorded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`documentation_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `documentation`
@@ -44,4 +77,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-04-13 19:54:05
+-- Dump completed on 2013-04-13 19:43:12
