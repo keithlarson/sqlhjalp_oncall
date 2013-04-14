@@ -632,12 +632,12 @@ FROM events    ";
 		$HOURS[]=0;
                 $subtitle="CURRENT RESULTS HAVE NULL RESULTS. Check Events Status";
         } else {
-                if( sizeof($L) == 1 ){ $L_ar[]=0;  }
+                #if( sizeof($L) == 1 ){ $L_ar[]=0;  }
                 foreach($L as $l){
-      			$L_ar[]=$L_ar[]=$l['variable_value']-1; 
+      		 	$L_ar[]=$L_ar[]=$l['variable_value']; 
 			if($trip==0){
-				if($l['variable_value'] > 0) {$L_ar[]=$l['variable_value']+1; $trip=1; }  ;
-				if($l['variable_value2'] > 0) {$A_ar[]=$l['variable_value2']+1; $trip=1; };
+		 		if($l['variable_value'] > 0) {$L_ar[]=$l['variable_value']+0.0001; $trip=1; }  ;
+		 		if($l['variable_value2'] > 0) {$A_ar[]=$l['variable_value2']+0.001; $trip=1; };
 				
 			} else {
 				$L_ar[]=$l['variable_value'];
