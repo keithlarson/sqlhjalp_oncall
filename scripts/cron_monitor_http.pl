@@ -17,8 +17,8 @@
 #  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA      #
 #                                                                                #
 #  Programmer    Keith Larson                                                    #
-#  Description   CRON JOB DIRECTOR FOR THE SQLHJALP MONITOR			 #
-#  https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor			 #
+#  Description   CRON JOB HTTP VALIDATION FOR THE SQLHJALP MONITOR	         #
+#  https://github.com/keithlarson/sqlhjalp_oncall                                #
 #                                                                                #
 #                                                                                # 
 ##################################################################################

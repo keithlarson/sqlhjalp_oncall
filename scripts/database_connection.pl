@@ -18,7 +18,7 @@
 #                                                                                #
 #  Programmer    Keith Larson                                                    #
 #  Description   DATABASE CONNECTION FOR THE SQLHJALP MONITOR			 #
-#  https://code.launchpad.net/~klarson/+junk/sqlhjalp_monitor			 #
+#  https://github.com/keithlarson/sqlhjalp_oncall                                #
 #                                                                                #
 #                                                                                # 
 ##################################################################################
@@ -79,7 +79,7 @@ sub db{
 	my $user = $info{SQLMOT_DB_USER};
 	my $pass = $info{SQLMOT_DB_PASS};
  	# print " \n\nValues from lookup in constants.txt:source:".$source.",user:".$user.",pass:".$pass."\n \n";
-      my $dbh = DBI->connect($source, $user, $pass) or nineoneone(%info,${DBI::strerr} );  #  die("Could not connect to database\n$!\n".${DBI::strerr});
+      my $dbh = DBI->connect($source, $user, $pass) or nineoneone(%info,"Could not connect to database ".${DBI::strerr} );  #  die("Could not connect to database\n$!\n".${DBI::strerr});
 
 return $dbh
 }
@@ -92,33 +92,25 @@ my %info = $_[0];
 my $error= $_[1];
 
 my $subject=" SQLHJALP MONITOR 911";
-my $body="";
-my $txt_info="";
-my $voice_message="";
+my $body=" Hello you have been designated as the Admin contact.  We appear to have an alert that needs your attention.\n
+ The Error is $error   ";
+my $txt_info="ADMIN Alert -  $error ";
+my $xml_message="
+<Response>
+     <Say>Hello you have been designated as the Admin contact.  We appear to have an alert that needs your attention. </Say>
+     <Say>I will email and txt you additional information but for your reference here is what we know</Say>
+     <Say>The Error is $error </Say>
+</Response>";
 
-print " \n 911 \n";
 
-exit;
-	$to="ADMIN EMERGENCY CONTACT <".$info{ADMIN_EMAIL}.">";
+	$to="ADMIN EMERGENCY CONTACT <".$info{SQLMOT_ADMIN_EMAIL}.">";
 	&send_mail($to, $subject, $body,$info{SMTP_USER},$info{SMTP_PASS},$info{SMTP_SERVER},465);
 
 	$message_info =~ s/ /+/g;
-	&twilio($info{ADMIN_PHONE},$info{PHONE},$txt_info,$info{ACCOUNTSID} ,$info{AUTHTOKEN},$voice_message );
-
+	&twilio($info{SQLMOT_ADMIN_PHONE},$info{PHONE},$txt_info,$info{ACCOUNTSID} ,$info{AUTHTOKEN},$xml_message );
 
 	die("$to has been notified of the error - $error \n ");
 }
 
-#       my %parsed_info=parse_info();
-#       #        my $smtp_server=$parsed_info{SMTP_SERVER};
-#       #        my $user=$parsed_info{SMTP_USER};
-#       #        my $pass=$parsed_info{SMTP_PASS};
-#       #        my $SID=$parsed_info{ACCOUNTSID};
-#       #        my $token=$parsed_info{AUTHTOKEN};
-#       #        my $from_phone=$parsed_info{PHONE};
-#       #       my $pass=$parsed_info{ADMIN_EMAIL}
-#       #       my $pass=$parsed_info{ADMIN_PHONE}
-#
-#
-#
+
 1;
