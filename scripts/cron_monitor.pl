@@ -46,6 +46,7 @@ $dir=$dir."/scripts/";
 	my $SID=$parsed_info{ACCOUNTSID};
 	my $token=$parsed_info{AUTHTOKEN};
 	my $from_phone=$parsed_info{PHONE};
+	my $http_domain=$parsed_info{SQLMON_ROOT_HTTP};
 	my %crons_ar = ();
 	my %contacts_array=();
 	my %notify_array = ();
@@ -56,6 +57,7 @@ $dir=$dir."/scripts/";
 	
 	my $subject = "SQLHJALP Monitor Alert";
 	my $debug=0;
+
 
 	# Gather the active Crons with thresholds
 	my $sth_crons = $database_handle->prepare("SELECT  c.cron_id , c.threshold, c.threshold_ratio
@@ -145,10 +147,10 @@ $dir=$dir."/scripts/";
 			$to=$contacts_array{$ckey}{first_name}." ".$contacts_array{$ckey}{last_name}. "<".$contacts_array{$ckey}{email}.">";
 			if($debug >0){  print "inside contacts foreach $to \n ";}
 			foreach my $key (sort (keys(%notify_array))) {
-			my $info_passed="CTID000".$contacts_array{$ckey}{contact_id}."000000CI000".$notify_array{$key}{'cron_id'}."000000CFRI000".$notify_array{$key}{'cron_failed_response_id'};
+			my $info_passed="CTID---".$contacts_array{$ckey}{contact_id}."___CI---".$notify_array{$key}{'cron_id'}."___CFRI---".$notify_array{$key}{'cron_failed_response_id'};
 my $xml_message="
 <Response>
-  <Gather method=\"GET\" action=\"http://oncalldemo.sqlhjalp.com/twilio/?cni=".$info_passed."\" numDigits=\"1\">
+  <Gather method=\"GET\" action=\"".$http_domain."/?cni=".$info_passed."\" numDigits=\"1\">
      <Say>Hello ".$contacts_array{$ckey}{first_name}." we appear to have an alert that needs your attention. </Say>
      <Say>I will email and txt you additional information but for your reference here is what we know</Say>
      <Say>Cron ".$notify_array{$key}{'cron_name'}." ID ".$notify_array{$key}{'cron_id'}." Failed ".$notify_array{$key}{'failures'}." times with a ".$notify_array{$key}{'response'}." response. </Say>
@@ -159,6 +161,9 @@ my $xml_message="
 
 		my $txt_message="Cron ".$notify_array{$key}{'cron_name'}." ID ".$notify_array{$key}{'cron_id'}." Failed";				
 		my $email_message="Cron ".$notify_array{$key}{'cron_name'}." ID ".$notify_array{$key}{'cron_id'}." Failed ".$notify_array{$key}{'failures'}." times with a ".$notify_array{$key}{'response'}." response.";
+		   	$email_message.="You can follow this hyperlink to confirm you are aware of this "; 
+			$email_message.="<a href=\"".$http_domain."/?cni=".$info_passed."&Digits=1&email=1\">Confirm</a> ";
+			$email_message.="<a href=\"".$http_domain."/?cni=".$info_passed."&Digits=2&email=1\">UnAvailable</a> ";
 		if($debug >0){ print " \n\n $xml_message \n\n ";  }
          
  			&send_mail($to, $subject,$email_message,$user,$pass,$smtp_server,465);			

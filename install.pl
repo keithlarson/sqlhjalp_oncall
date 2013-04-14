@@ -167,6 +167,7 @@ if($config eq ""){ $config="Y";}
 if(uc($config) eq "Y"){
 
 	print "OK now we will proceed in building out the config file now. \n ";
+	print "You are able to edit the config file after it is  created \n"
 	print "This database host for this application expects to be the 'master' database database \n";	
 	print "This application will monitor the database as well as all related cron job requested.\n";
 	print "If access to this database fails notifications to the ADMIN contact will be sent. \n \n";
@@ -188,7 +189,14 @@ if(uc($config) eq "Y"){
         print "\n";
         print FILE ("SQLMOT_ADMIN_PHONE===$admin_phone \n");
 
-	print "The preferred method of running this application is via a subdomain. ie: http://oncalldemo.sqlhjalp.com/ \n";
+	print "The preferred method of running this application is via a subdomain. ie: (http://oncalldemo.sqlhjalp.com/) \n";
+
+	print "What will the Root Url of public access point for this site? (ie: http://somedomain.com/twilio/ or ie http://twilio.somedomain.com) ";
+	my $rooturl= <>;
+        chomp($rooturl);
+        print "\n";
+	print FILE ("SQLMOT_ROOT_HTTP===$rooturl \n");
+
         print "What is the url path in which this will be dashboard will be located? (ie: /sqlhojalp_monitor/dashboard/ or / for a subdomain ) \n";
 	print "The default is / for a subdomain. Your path: ";
         my $loc= <>;

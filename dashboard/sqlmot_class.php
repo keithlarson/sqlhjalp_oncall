@@ -231,13 +231,21 @@ class sqlmot {
                         $query="select * from ps_helper.top_io_by_thread";
                 break;
 		case "notification";
-			$query="SELECT n.cron_notifications_id , n.cron_id , c.cron_name , ct.first_name, ct.last_name,
+			$query="SELECT n.cron_notifications_id , n.cron_id , c.cron_name , 
+CASE
+WHEN n.contact_id = 0 THEN 'ADMIN'
+ELSE  ct.first_name
+END as first_name, 
+CASE
+WHEN n.contact_id = 0 THEN 'CONTACT'
+ELSE  ct.last_name
+END as last_name, 
 CONCAT('<font color=',s.color,'>',s.status,'</font>') as status
 FROM cron_notifications n
 INNER JOIN cron c ON c.cron_id = n.cron_id
-INNER JOIN contact ct ON ct.contact_id = n.contact_id
+LEFT JOIN contact ct ON ct.contact_id = n.contact_id
 LEFT JOIN status s ON n.status_id = s.status_id
-WHERE n.time_recorded > NOW() - interval 40 DAY";
+WHERE n.time_recorded > NOW() - interval 40 DAY ORDER BY n.time_recorded DESC";
 		break;
 
 	}
