@@ -36,9 +36,14 @@ if(!class_exists('file_parse')){
       #################################################### 
       public function __construct($file=false){
 
-         if ($file) $filename = $file;
-         elseif (defined('PARSE_PATH')) $filename = PARSE_PATH;
-         else $filename = substr('_FILE_',0,strpos('_FILE_','config/')).'../config/config.info';
+         if ($file){ 
+		$filename = $file;
+         }elseif(defined('PARSE_PATH')){ 
+		$filename = PARSE_PATH;
+            }else{ 
+  		 $filename = substr('_FILE_',0,strpos('_FILE_','../config/')).'../config/config.info';
+	 }
+
 
          $this->parsed = file($filename);
 
@@ -63,7 +68,8 @@ if(!class_exists('file_parse')){
 		$_SESSION['parse'][$name]=$value;
 
 		# DEBUG
-                if($this->debug==1){ echo "<br>name: $name = value: $value ";  }
+                if($this->debug==1){ echo "<br>name: $name = value: $value ";  }  
+		#else { error_log(" $name = $value  " , 0);  }
              
                	
             } # end of foreach

@@ -54,7 +54,7 @@ class sqlmot {
 
         public function __construct(){ 
 		# $_SESSION['parse']["SQLMOT_HTTPS"]==0
-                if($_SERVER["HTTPS"]){
+                if(isset($_SERVER["HTTPS"])){
                         $this->SITEROOT="https://".$_SERVER["HTTP_HOST"];
                 }else{ 
                         $this->SITEROOT="http://".$_SERVER["HTTP_HOST"];
@@ -77,9 +77,8 @@ class sqlmot {
 		$this->location=$this->SITEROOT.$_SESSION['parse']["SQLMOT_LOCATION_HTTP"];
 		$this->title="SQLHJALP.com SYSTEM MONITOR";
     
-		if($_POST['page']){$_GET['page'] = $_POST['page'];  }
-		$this->page=$_GET[page];
-
+		if(isset($_POST['page'])){$this->page=$_POST['page'];  }
+		if(isset($_GET['page'])){ $this->page=$_GET['page'];}
 		switch($this->page) {
                 case "contacts_details";
                		$this->js_extra="scriptaculous"; 
@@ -247,6 +246,15 @@ LEFT JOIN contact ct ON ct.contact_id = n.contact_id
 LEFT JOIN status s ON n.status_id = s.status_id
 WHERE n.time_recorded > NOW() - interval 40 DAY ORDER BY n.time_recorded DESC";
 		break;
+		case "editevents";
+			$id=$this->stringreplace("#",'',$_GET['id']);
+                        $query="SELECT events_id , events_name , contact_id , start_date, end_date , primary_contact FROM events where events_id = '".$id."'";
+                break;
+		case "get_events";
+        	$query=" SELECT  e.events_id as id , CONCAT(c.first_name,' ',c.last_name) as title , DATE_FORMAT(e.start_date,'%Y-%m-%d' ) as start , DATE_FORMAT(e.end_date,'%Y-%m-%d' ) as end
+			FROM events e 
+			INNER JOIN contact c ON c.contact_id = e.contact_id  ";
+		break;
 
 	}
 	
@@ -264,11 +272,6 @@ WHERE n.time_recorded > NOW() - interval 40 DAY ORDER BY n.time_recorded DESC";
 	$mysqli = new mysqli($this->db_host,$this->db_user,$this->db_pass,$this->db_database) or die("Connect failed: %s\n ". $mysqli->connect_error  );
 	$docs=0;
  	if (preg_match("/FROM documentation/i",$query)) { $docs=1; }
-
-#	if (preg_match("/ps_helper./i",$query)) {
-#		# CHANGE mysqli connection for ps_helper user and information
-#		$mysqli = new mysqli($this->db_leith_host,$this->db_leith_user,$this->db_leith_pass,'ps_helper') or die("Connect failed: %s\n ". $mysqli->connect_error  );
-#	}
 
         $result = $mysqli->query($query) or die("Query Error $query");
         $_SESSION['last_query']=$query;
@@ -328,7 +331,7 @@ WHERE n.time_recorded > NOW() - interval 40 DAY ORDER BY n.time_recorded DESC";
 			}
                 }
               
-                if($_GET['t']=='s'){ echo "[".implode(',',$tmp_ar)."]"; } else { echo json_encode($json_ar); }
+                if( isset($_GET['t']) && ($_GET['t']=='s')){ echo "[".implode(',',$tmp_ar)."]"; } else { echo json_encode($json_ar); }
 
         }elseif($i == 4){
 
@@ -611,7 +614,6 @@ WHERE n.time_recorded > NOW() - interval 40 DAY ORDER BY n.time_recorded DESC";
 
 
 
-
 	#####################
 	# CURRENT PAGE SWITCH
 	#####################
@@ -659,6 +661,9 @@ WHERE n.time_recorded > NOW() - interval 40 DAY ORDER BY n.time_recorded DESC";
                         # Documentation Details 
                         require('html_files/documentation.html');
                 break;
+		case "edit_schedule";
+			require('html_files/edit_schedule.html');	
+		break;
 		case "graph_details";
                         # Graphs Details 
                         require('html_files/graph_details.html');
@@ -734,7 +739,7 @@ WHERE n.time_recorded > NOW() - interval 40 DAY ORDER BY n.time_recorded DESC";
 
 	if($record['required']==1){ $required="required"; } else { $required=" "; }
 	if(isset($record['form_name'])){ $formname="form=".$record['form_name'];} else { $formname=""; }
-
+	if(isset($record['form_id'])){ $form_id="id=".$record['form_id'];} else { $form_id=""; }
    	if(!isset($default)) { $default = '--';} else { $default = $record['default'];  }
 
 	 $query="SELECT ".$record['table']."_id , ".$record['field']." as field FROM ".$record['table']." ORDER BY field ASC  ";
@@ -750,7 +755,7 @@ WHERE n.time_recorded > NOW() - interval 40 DAY ORDER BY n.time_recorded DESC";
 
 	}
    
-   	$select_html = "\n<SELECT $formname  name=".$record['name']." $required  >\n".implode("\n",$option_ar)."\n</SELECT>\n";
+   	$select_html = "\n<SELECT $formname $form_id  name=".$record['name']." $required  >\n".implode("\n",$option_ar)."\n</SELECT>\n";
 
    	return $select_html;
 	}
@@ -796,6 +801,8 @@ WHERE n.time_recorded > NOW() - interval 40 DAY ORDER BY n.time_recorded DESC";
 	<script src="./javascript/tabpane.js" type="text/javascript"   ></script>
 	<script src="./javascript/CalendarPopup.js" type="text/javascript"   ></script>	
 	<script src='./javascript/fullcalendar.min.js' type="text/javascript" ></script>
+
+
 
        	<?php
 	if($this->js_extra=="scriptaculous"){ 

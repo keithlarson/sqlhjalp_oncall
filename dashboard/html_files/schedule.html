@@ -3,125 +3,187 @@
 require("./sqlmot_pages_class.php");
 
 $pages= new pages();
-$events_ar=$pages->get_events();
-
-$cal_ar=array();
-foreach($events_ar as $a ){
-$s_month= ($a[s_month] *1) -1;
-$e_month= ($a[e_month] *1) -1;
-$cal_ar[]="{
-            				id: ".$a[events_id].",
-            				title: '".$a[title]."',
-            				start: new Date(".$a[s_year].", ".$s_month.", ".$a[s_day]."),
-            				end: new Date(".$a[e_year].", ".$e_month.", ".$a[e_day]."), 
-            				allDay: false 
-            			} ";
-}
-$cal_js = implode(",", $cal_ar);
 
 ?>
-
 <div id="header_title_page"><h4>SQLHJALP.com On-call Monitor SCHEDULE </h4></div>
+
+<script type="text/javascript">
+$(function ()  {
+
+	
+                $('div[id*=calendar]').fullCalendar({
+	
+		theme: true , 
+		select: this.select,
+		header: { left: 'prev,next today',center: 'title', right: 'month' },  
+		selectable: true,
+                selectHelper: true,
+                editable: true,
+                ignoreTimezone: false, 
+
+		eventResize: function(event,dayDelta,minuteDelta,revertFunc) {
+
+			if(!eventID){
+                        	var eventID = event._id;
+                        }
+			$.ajax({
+                        type: "GET",
+                        url: "./fullcalendar_ajaxresponse.php",
+                        data: "&ID=" + eventID +"&dayDelta=" + dayDelta 
+                        });
+
+    		},
+		eventClick: function(event) {
+        
+    			if(!eventID){
+                                var eventID = event._id;
+                        }   
+			var current_contact=event.title;
+
+		$("#changecontact").dialog({ 
+                title: "Edit: " + current_contact + " ",modal: true,
+                buttons: {
+                                "OK": function (event) {
+			
+                               	eventToSave = new Object(); 
+				eventToSave.EventName = event.title = $("#changecontact #eventName").val();
+				// var primary =  $("#changecontact #primary").val();
+				eventToSave.primary = event.title =$("#changecontact #primary").val();
+                                $.ajax({
+                                type: 'GET',
+                                contentType: "application/json",
+                                data: "&update_contact=1&ID=" + eventID + "&primary="+ eventToSave.primary + "&current_contact=" + current_contact + "&new_contact=" + eventToSave.EventName ,
+                                url: "./fullcalendar_ajaxresponse.php",
+                                dataType:'json',
+                                success: function (data) {
+                                 	
+					$('div[id*=calendar]').fullCalendar('updateEvent', event);
+				//	$('div[id*=calendar]').fullCalendar('refetchEvents');
+					$("#changecontact").dialog("close");
+                                }
+                             
+                                });
+
+                        
+                                }// Add Function
+
+                                 ,'Delete': function (event ){ 
+                         
+                       		if (!confirm("Are you sure that you want to remove" + current_contact )) { revertFunc(); }	
+                                $.ajax({
+                                        type: "GET",
+                                        url: "./fullcalendar_ajaxresponse.php",
+                                        data: "&delete=1&ID=" + eventID
+                                });
+                                // $('#calendar').fullCalendar( 'removeEvents', eventID );
+				$("#changecontact").dialog("close");
+				$('div[id*=calendar]').fullCalendar('removeEvents', eventID);	
+				
+
+                                 }
+                                ,  'Cancel': function () { $("#changecontact").dialog("close");   }
+                } // Buttons
+
+
+                }); // End of changecontact 
+
+
+     
+    		},
+		eventDrop: function(event,dayDelta,minuteDelta,allDay,revertFunc) {
+			if(!eventID){
+                                var eventID = event._id;
+                        }
+
+			$.ajax({
+                        type: "GET",
+                        url: "./fullcalendar_ajaxresponse.php",
+                        data: "&eventDrop=1&ID=" + eventID +"&dayDelta=" + dayDelta 
+                        });
+
+    		},
+
+		dayClick: function (dateSelected, allDay, jsEvent, view) {
+            	$("#eventToAdd").dialog({ 
+		title: "New Event",modal: true,
+                buttons: {
+     				"OK": function () {
+				var event = new Object(), eventToSave = new Object(); ;
+    				eventToSave.EventID = event.id = Math.floor(200 * Math.random());
+    				event.start = new Date($("#eventToAdd #eventStartDate").val());
+    				eventToSave.StartDate = $("#eventToAdd #eventStartDate").val();
+    				if ($("#eventToAdd #eventEndDate").val() == "") {
+        				event.end = event.start;
+        				eventToSave.EndDate = eventToSave.StartDate;
+    				} else {
+        				event.end = new Date($("#eventToAdd #eventEndDate").val());
+        				eventToSave.EndDate = $("#eventToAdd #eventEndDate").val();
+    				}
+    				eventToSave.EventName = event.title = $("#eventToAdd #eventName").val();
+ 
+    				$("#eventToAdd input").val("");
+    				$.ajax({
+        			type: 'GET',
+        			contentType: "application/json",
+        			data: eventToSave,   
+        			url: "./fullcalendar_ajaxresponse.php",
+				dataType:'html',
+        			success: function (data) {
+			
+            				$('div[id*=calendar]').fullCalendar('renderEvent', event, true);
+            				$("#eventToAdd").dialog("close");
+        			},
+        			error: function(XMLHttpRequest, textStatus, errorThrown){
+                        		alert('Sorry Calendar Data Failed to save');
+                    		}			
+    				});
+
+			
+                    		}// Add Function
+
+				,  'Cancel': function () { $("#eventToAdd").dialog("close");   }
+                } // Buttons
+		,change: function() {
+			alert('change me');	
+		}
+
+          	}); // End of eventToAdd
+
+        	}, // End of dayClick  
+		events: "./fullcalendar_ajaxresponse.php"
+                }); // End of fullCalendar 
+	
+
+        });
+
+/*
+$('#calendar').fullCalendar({
+    events: "http://development.sqlhjalp.com/events/index.php"
+});
+*/
+
+</script>
+<!--
+http://growingtech.blogspot.in/2012/02/full-calendar-with-json-data-source.html
+http://growingtech.blogspot.com/2012/03/full-calendar-saving-event-using-ajax.html
+http://documentcloud.github.io/backbone/backbone-min.js
+http://arshaw.com/fullcalendar/docs/usage/
+-->
 
 <div class="tab-pane" id="tab-pane-1">
 
-   <div class="tab-page">
-      <h2 class="tab">General</h2>
+   <div class="tab-page" id="tab-page-1">
+      	<h2 class="tab">General</h2>
+         <div id="calendar"></div>
+
+</div> <!-- tab-page-1  -->
+
+<div class="tab-page" id="tab-page-2">
+        <h2 class="tab">Documentation</h2>
+        <div id="documentation_ajax"> AJAX will populate here</div>
 
 
-<script>
-
-        $(document).ready(function() {
-        
-                var date = new Date();
-                var d = date.getDate();
-                var m = date.getMonth();
-                var y = date.getFullYear();
-                
-                $('#calendar').fullCalendar({
-                        theme: true,
-                        header: {
-                                left: 'prev,next today',
-                                center: 'title',
-                                right: 'month,agendaWeek,agendaDay'
-                        },
-                        editable: true,
-                        events: [
-				<?php echo $cal_js; ?>                            
-                        ]
-                });
-                
-        });
-
-</script>
-
-
-
-	<div id='calendar'></div>
-
-   </div> <!-- tab-pane-1  -->
-
-   <div class="tab-page" id="tab-pane-2">
-      <h2 class="tab">Add event</h2>
-
-<?php
-        if(isset($_SESSION['lastneweventid'])){
-                echo "Thank you, We have this event has been added ";  
-                unset($_SESSION['lastneweventid']);
-        }
-?>
-<form id=sqlhjalp_form method="post" >
-<input type=hidden name=posted form=sqlhjalp_form  value="newevent">
-</form>
-<div id="information_list">
-<div id=tablecontainer>
-        <div id=tablerow>
-                <div id=tableleft><div class=column-in> <h4> Contact </h4> 
-
-              <?php 
-
-		$record=array();
-		$record['table']="contact";
-		$record['field']="CONCAT(first_name,' ' ,last_name ) ";
-		$record['name']="newuser";
-		$record['default']="";
-		$record['required']=1;
-		$record['form_name']="sqlhjalp_form";
-		
-		echo $pages->draw_single_select($record); 
-
-		?> 
-
-		 </div></div>
-                <div id=tablemiddle><div class=column-in> <h4>Start Date</h4>  <input type="text" form=sqlhjalp_form name=start_date required >
-		<A HREF="#" onClick="cal.select(document.forms['sqlhjalp_form'].start_date,'anchor1','MM/dd/yyyy'); return false;" NAME="anchor1" ID="anchor1">select start date</A>
-		</div></div>
-		<div id=tablemiddle><div class=column-in> <h4>End Date</h4>  <input type="text" form=sqlhjalp_form name=end_date required >
-                <A HREF="#" onClick="cal.select(document.forms['sqlhjalp_form'].end_date,'anchor1','MM/dd/yyyy'); return false;" NAME="anchor1" ID="anchor1">select end date</A>
-                </div></div>	
-		<div id=tablemiddle><div class=column-in> <h4>Primary Contact</h4>  <input type="checkbox" form=sqlhjalp_form name=primary >  </div></div>
-                <div id=tableright><div class=column-in> <button form=sqlhjalp_form name=action value=save>✓</button>  </div></div>
-        </div></div> <!-- tablecontainer  -->
-</div><!-- information_list  -->
-
-
-
-
-   </div>  <!-- tab-pane-2  -->
-
-   <div class="tab-page" id="tab-pane-3">
-      <h2 class="tab">Documentation</h2>
-
-		<div id="documentation_ajax"> AJAX will populate here</div>
-
-
-   </div>  <!-- tab-pane-3  -->
-
-
-</div>  <!-- tab-pane  -->
-<!-- tab pane closed -->
-
-  <script id="source" language="javascript" type="text/javascript">
+<script id="source" language="javascript" type="text/javascript">
   $(function ()  {
     $.ajax({
       url: './index.php',      
@@ -143,9 +205,91 @@ $cal_js = implode(",", $cal_ar);
   });
   </script>
 
+
+
+</div>  <!-- tab-page-2  -->
+
+
+
+ <div id="eventToAdd" style="display: none; font-size: 12px;"> 
+        <div id=tablecontainer>
+       	<form id=sqlhjalp_form method="GET" action="fullcalendar_ajaxresponse.php"> </form>
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4> Contact </h4>
+            	
+                <?php 
+                $record=array();
+                $record['table']="contact";
+                $record['field']="CONCAT(first_name,' ' ,last_name ) ";
+                $record['name']="contact_id";
+		$record['form_id']="eventName";
+                $record['default']="";
+                $record['required']=1;
+                $record['form_name']="sqlhjalp_form";
+                echo $pages->draw_single_select($record);
+                ?>
+                </div></div>
+	</div> <!--tablerow -->
+	<div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>Start Date</h4>
+                <input id="eventStartDate" type="text" form=sqlhjalp_form  placeholder="yyyy-MM-dd" />
+                <A HREF="#" onClick="cal.select(document.forms['sqlhjalp_form'].eventStartDate,'anchor1','yyyy-MM-dd'); return false;" NAME="anchor1" ID="anchor1">select start date</A>
+                </div></div>
+	</div> <!--tablerow -->
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>End Date</h4>
+                <input id="eventEndDate" type="text" form=sqlhjalp_form  placeholder="yyyy-MM-dd"  />
+                <A HREF="#" onClick="cal.select(document.forms['sqlhjalp_form'].eventEndDate,'anchor1','yyyy-MM-dd'); return false;" NAME="anchor1" ID="anchor1">select end date</A>
+                </div></div>        
+	</div> <!--tablerow -->
+        <div id=tablerow>
+	<div id=tableleft><div class=column-in> <h4>Primary Contact</h4>  <input type="checkbox" form=sqlhjalp_form name=primary >  </div></div>	
+	
+	</div> <!--tablerow -->
+
+        </div> <!-- tablecontainer  -->
+</div> <!-- eventToAdd  -->
+
+
+
+
+ <div id="changecontact" style="display: none; font-size: 12px;">
+        <div id=tablecontainer>
+        <form id=sqlhjalp_form method="GET" action="fullcalendar_ajaxresponse.php"> </form>
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4> Contact </h4>
+
+                <?php 
+                $record=array();
+                $record['table']="contact";
+                $record['field']="CONCAT(first_name,' ' ,last_name ) ";
+                $record['name']="contact_id";
+                $record['form_id']="eventName";
+                $record['default']="";
+                $record['required']=1;
+                $record['form_name']="sqlhjalp_form";
+                echo $pages->draw_single_select($record);
+                ?>
+                </div></div>
+        </div> <!--tablerow -->
+
+        <div id=tablerow>
+        <div id=tableleft><div class=column-in> <h4>Primary Contact</h4>  <input type="checkbox" form=sqlhjalp_form name=primary >  </div></div>
+
+        </div> <!--tablerow -->
+
+        </div> <!-- tablecontainer  -->
+</div> <!-- changecontact -->
+
+
+
+
+
+
+</div>  <!-- tab-pane  -->
+<!-- tab pane closed -->
+
+
 <script type="text/javascript">
 setupAllTabs();
 </script>
-
-
-

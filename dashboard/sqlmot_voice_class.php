@@ -59,7 +59,7 @@ class voice extends sqlmot{
 	$cron_failed_response_id=$Vars['CFRI'];
 
 	$results=array();
-	$query="SELECT 1 as valid FROM cron_notifications WHERE cron_failed_response_id=$cron_failed_response_id";
+	$query="SELECT 1 as valid FROM cron_notifications WHERE cron_failed_response_id=$cron_failed_response_id LIMIT 1";
 	$results_ar=$this->query_db($query);
 	if($results_ar[0]){
         	$query="UPDATE cron_notifications SET status_id=$digits WHERE cron_failed_response_id=$cron_failed_response_id AND contact_id=$contact_id AND cron_id=$cron_id ";

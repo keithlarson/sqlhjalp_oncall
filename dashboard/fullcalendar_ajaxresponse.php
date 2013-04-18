@@ -1,5 +1,4 @@
 <?php
-#die("COMING SOON");
 #################################################################################
 #                                                                               #
 # Copyright (c) 2013, SQLHJALP.com All rights reserved.                         #
@@ -22,67 +21,69 @@
 # https://github.com/keithlarson/sqlhjalp_oncall                                #
 #                                                                               #
 #################################################################################
+#DEFINE ("PARSE_PATH", "../../config/config.info")
 
+foreach($_GET as $name => $value){  error_log("DEBUG LOOP --> $name = $value  " , 0);  }
 
- if (!session_id()){
+if (!session_id()){
 	session_start();      
 	setcookie("PHPSESSID",session_id());
- }
-
-
-require("sqlmot_class.php");
-$sqlmot= new sqlmot();
-
-if( isset($_SESSION['kv']) ){
-#   	echo "  KV: ".$_SESSION['kv']."<hr>";
-}else{
- 	foreach($_POST as $p){ unset($p); }
- 	foreach($_GET as $g){ unset($g); }	
- 	foreach($_REQUEST as $r){ unset($r); }
-        $kv =$sqlmot->key_value();
-	$_SESSION['kv']=$kv[0];
-} 
-
-
-if($_POST){
-
-switch($_POST['posted']) {
-	case "cronnew";
-		unset($_SESSION['lastnewcronid']);
-		$_SESSION['lastnewcronid']=$sqlmot->add_new_cron($_POST['newcron']);
-	break;
-	case "newcontact";
-                unset($_SESSION['lastnewcontactid']);
-                $_SESSION['lastnewcontactid']=$sqlmot->add_new_contact($_POST['newcontactemail']);
-        break;
-	case "newevent";
-
-                unset($_SESSION['lastneweventid']);
-		$record=array();	
-		$record['id']=$_POST['newuser'];
-		$record['start_date']=$_POST['start_date'];
-		$record['end_date']=$_POST['end_date'];
-		$record['primary']=$_POST['primary'];
-                $_SESSION['lastneweventid']=$sqlmot->add_new_event($record);
-        break;
-} 
-	# var_dump($_POST);
 }
+require("./sqlmot_class.php");
+require("./sqlmot_events_class.php");
+$events= new events();
+$records=array();
+
+if($_GET['EventName']>0){
+
+	foreach($_GET as $name => $value){
+	$records[$name]=$value; 
+	// 	error_log("INSIDE LOOP --> $name = $value  " , 0);  
+	}
+	echo   $events->add_event($records);
+}elseif($_GET['eventDrop'] ==1){
+
+	foreach($_GET as $name => $value){
+        $records[$name]=$value;
+	error_log("eventDrop  LOOP --> $name = $value  " , 0);  
+	}
+	$events->eventDrop($records);
+
+}elseif($_GET['dayDelta'] !=0){
+
+
+	foreach($_GET as $name => $value){
+        $records[$name]=$value;
+	}
+	$events->resize_event($records);
+
+}elseif($_GET['update_contact'] ==1){
+
+
+        foreach($_GET as $name => $value){
+        $records[$name]=$value;
+        }
+        echo $events->update_contact($records);
+
+}elseif($_GET['delete'] ==1){
+
+
+        foreach($_GET as $name => $value){
+        $records[$name]=$value;
+        }
+        $events->delete_event($records);
 
 
 
-if( ($_GET['page']!="API") && ($_GET['page']!="AJAX") && ($_GET['page']!='edit_schedule') ){
-	$sqlmot->HEADERS();
+} else {
+
+
+//header('Content-type:application/json; charset=utf-8');
+
+$_GET['page']="API";
+$events->page="API";
+$events->jquery="get_events";
+$events->current_page();
+
 }
-if($_GET['jquery']){$sqlmot->jquery=$_GET['jquery'] ;}
-
-$sqlmot->current_page();
-
-
-if( ($_GET['page']!="API") && ($_GET['page']!="AJAX") && ($_GET['page']!='edit_schedule') ){
-	$sqlmot->FOOTERS();
-}
-
-
-
 ?>

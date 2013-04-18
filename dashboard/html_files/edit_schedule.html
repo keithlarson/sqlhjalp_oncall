@@ -1,0 +1,46 @@
+<?php
+
+require("sqlmot_pages_class.php");
+
+$pages= new pages();
+$events_ar=$pages->get_one_event($_GET['id']);
+var_dump($events_ar);
+?>
+<form id=sqlhjalp_form method="post" >
+<input type=hidden name=posted form=sqlhjalp_form  value="editevent">
+</form>
+
+<div id=tablecontainer>
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4> Contact </h4>
+              <?php 
+
+                $record=array();
+                $record['table']="contact";
+                $record['field']="CONCAT(first_name,' ' ,last_name ) ";
+                $record['name']="newuser";
+                $record['default']=$events_ar[0]['title'];
+                $record['required']=1;
+                $record['form_name']="sqlhjalp_form";
+                 echo $pages->draw_single_select($record);
+                ?>
+                 </div></div>
+	</div>
+	<div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>Start Date</h4>  <input type="text" form=sqlhjalp_form name=start_date required >
+                <A HREF="#" onClick="cal.select(document.forms['sqlhjalp_form'].start_date,'anchor1','MM/dd/yyyy'); return false;" NAME="anchor1" ID="anchor1"  >select start date</A>
+                </div></div>
+	</div>  
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>End Date</h4>  <input type="text" form=sqlhjalp_form name=end_date required >
+                <A HREF="#" onClick="cal.select(document.forms['sqlhjalp_form'].end_date,'anchor1','MM/dd/yyyy'); return false;" NAME="anchor1" ID="anchor1">select end date</A>
+                </div></div>
+	</div>  
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <h4>Primary Contact</h4>  <input type="checkbox" form=sqlhjalp_form name=primary >  </div></div>
+	</div>  
+        <div id=tablerow>
+                <div id=tableleft><div class=column-in> <button form=sqlhjalp_form name=action value=save>✓</button>  </div></div>
+        </div>
+</div> <!-- tablecontainer  -->
+

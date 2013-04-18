@@ -214,6 +214,18 @@ FROM events    ";
         return $results_ar;
         }
 
+	function get_one_event($id){
+
+	$query=" SELECT events_id , events_name as title , date_format(start_date,'%Y') as s_year, date_format(start_date ,'%m') as s_month, date_format(start_date,'%d') as s_day, date_format(end_date,'%Y') as e_year, date_format(end_date,'%m') as e_month, date_format(end_date,'%d') as e_day 
+FROM events  WHERE events_id = $id  ";
+        $results_ar=$this->query_db($query,4);
+
+        return $results_ar;
+
+
+	}
+
+	
 	function get_documentation_info(){
         	$query="select documentation_id , chapter *1 as chapter , documentation_title FROM documentation ORDER BY chapter , page_number ASC";
         	$results_ar=$this->query_db($query,4);
