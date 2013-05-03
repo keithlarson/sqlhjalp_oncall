@@ -301,7 +301,7 @@ FROM events  WHERE events_id = $id  ";
 
                 $i++;
                 $recs_array[$i]['title']='Innodb Log Buffer Size';
-                if( $variables['key_buffer_size'] >  16777216){
+                if( $variables['innodb_log_buffer_size'] >  16777216){
                 	$innodb_log_buffer_size_result="<font color=red> TO High-->".$this->mb_convert($variables['innodb_log_buffer_size'])."</font>";
                 }else{
                 	$innodb_log_buffer_size_result=$this->mb_convert($variables['innodb_log_buffer_size']);
